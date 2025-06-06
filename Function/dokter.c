@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "dokter.h"
 
 void displayDokters(ListNode *head) {
@@ -31,7 +28,7 @@ ListNode *createDokterList() {
   ListNode *current = NULL;
   ListNode *newNode = NULL;
 
-  FILE *file = fopen("../Data/data_dokter.csv", "r");
+  FILE *file = fopen("Data/data_dokter.csv", "r");
   if (file == NULL) {
     printf("Error opening file!\n");
     return NULL;

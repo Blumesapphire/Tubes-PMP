@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "Function/dokter.h"
+#include "dokter.h"
 
 int main() {
   ListNode *head = createDokterList();
