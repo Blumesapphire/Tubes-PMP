@@ -19,5 +19,6 @@ typedef struct ListNode {
 
 ListNode *createDokterList();
 void displayDokters(ListNode *head);
+void tambahDokter(ListNode **head);
 
 #endif

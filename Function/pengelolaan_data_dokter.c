@@ -23,6 +23,108 @@ void displayDokters(ListNode *head) {
   }
 }
 
+void tambahDokter(ListNode **head) {
+  Dokter newDokter;
+  printf("Masukkan ID: ");
+  scanf("%d", &newDokter.id);
+  getchar();
+
+  printf("Masukkan Nama: ");
+  fgets(newDokter.nama, sizeof(newDokter.nama), stdin);
+  newDokter.nama[strcspn(newDokter.nama, "\n")] = '\0';
+
+  printf("Masukkan Max Shift: ");
+  scanf("%d", &newDokter.maxShift);
+  getchar();
+
+  printf("Masukkan Hari: ");
+  char hariStr[100];
+  fgets(hariStr, sizeof(hariStr), stdin);
+  hariStr[strcspn(hariStr, "\n")] = '\0';
+
+  printf("Masukkan Shift: ");
+  char shiftStr[100];
+  fgets(shiftStr, sizeof(shiftStr), stdin);
+  shiftStr[strcspn(shiftStr, "\n")] = '\0';
+
+  // Parse hari
+  char *token = strtok(hariStr, " ");
+  int i = 0;
+  char hariJoin[100] = "";
+
+  while (token && i < 7) {
+    strcpy(newDokter.hari[i++], token);
+
+    strcat(hariJoin, token);
+    token = strtok(NULL, " ");
+    if (token != NULL) strcat(hariJoin, ";");
+  }
+  while (i < 7) strcpy(newDokter.hari[i++], "");
+
+  // Parse shift
+  token = strtok(shiftStr, " ");
+  int j = 0;
+  char shiftJoin[100] = "";
+
+  while (token && j < 3) {
+    strcpy(newDokter.shift[j++], token);
+
+    strcat(shiftJoin, token);
+    token = strtok(NULL, " ");
+    if (token != NULL) strcat(shiftJoin, ";");
+  }
+  while (j < 3) strcpy(newDokter.shift[j++], "");
+
+  // Tambah ke linked list
+  ListNode *newNode = (ListNode *)malloc(sizeof(ListNode));
+  newNode->data = newDokter;
+  newNode->next = NULL;
+
+  if (*head == NULL) {
+    *head = newNode;
+  } else {
+    ListNode *temp = *head;
+    while (temp->next != NULL) temp = temp->next;
+    temp->next = newNode;
+  }
+
+  // 🔄 Re-write seluruh file dengan linked list terbaru
+  FILE *file = fopen("../Data/data_dokter.csv", "w");
+  if (file == NULL) {
+    perror("Gagal membuka file CSV");
+    return;
+  }
+
+  fprintf(file, "Id,Nama,MaxShift,Hari,Shift\n");
+
+  ListNode *temp = *head;
+  while (temp != NULL) {
+    char hariJoin[100] = "", shiftJoin[100] = "";
+
+    for (int i = 0; i < 7 && strlen(temp->data.hari[i]) > 0; i++) {
+      strcat(hariJoin, temp->data.hari[i]);
+      if (i < 6 && strlen(temp->data.hari[i + 1]) > 0) strcat(hariJoin, ";");
+    }
+
+    for (int i = 0; i < 3 && strlen(temp->data.shift[i]) > 0; i++) {
+      strcat(shiftJoin, temp->data.shift[i]);
+      if (i < 2 && strlen(temp->data.shift[i + 1]) > 0) strcat(shiftJoin, ";");
+    }
+
+    fprintf(file, "%d,%s,%d,%s,%s\n",
+            temp->data.id,
+            temp->data.nama,
+            temp->data.maxShift,
+            hariJoin,
+            shiftJoin);
+
+    temp = temp->next;
+  }
+
+  fclose(file);
+  printf("Dokter berhasil ditambahkan dan file CSV diperbarui.\n");
+}
+
 ListNode *createDokterList() {
   ListNode *head = NULL;
   ListNode *current = NULL;
@@ -77,4 +179,13 @@ ListNode *createDokterList() {
 
   fclose(file);
   return (head);
+}
+
+int main() {
+  ListNode *dokters = createDokterList();
+  displayDokters(dokters);
+
+  tambahDokter(&dokters);
+  displayDokters(dokters);
+  return 0;
 }
