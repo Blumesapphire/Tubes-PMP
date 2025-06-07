@@ -11,7 +11,6 @@ int main(void){
     buatJadwal (Jadwal,&numViolations,head,&dynArrayViolation);
     printJadwal(Jadwal,30);
     printPelanggaran(dynArrayViolation,Jadwal);
-    printf ("Jumlah pelanggaran shift dan hari :%d",numViolations);
     // Membersihkan memori (sederhana)
     while (head != NULL) {
         ListNode* temp = head;

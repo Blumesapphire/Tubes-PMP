@@ -1,4 +1,4 @@
 Id,Nama,MaxShift,Hari,Shift
-1,Alexander Minerale,17,Senin;Rabu;Jumat,Pagi
-2,Le Vaeline,5,Selasa,Malam
+1,Le Alexander,17,Selasa;Senin;Kamis;Jumat,Malam;Siang;Pagi
+2,Le Vaeline,5,Selasa,Malam;Siang
 3,Bahlil,9,Kamis;Jumat,Siang

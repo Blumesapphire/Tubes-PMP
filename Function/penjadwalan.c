@@ -1,8 +1,14 @@
 #include "penjadwalan.h"
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]){
+    char stringCleanse[10];
+    char stringCompCleanse[10];
+    strncpy(stringCompCleanse,stringComp,10);
+    stringCompCleanse[strcspn(stringCompCleanse, "\r\t\n")] = '\0';
     for (int i =0;i<size;i++){
-        if (strcmp(stringComp,arrayPref[i])==0){
+        strncpy(stringCleanse,arrayPref[i],10);
+        stringCleanse[strcspn(stringCleanse, "\r\t\n")] = '\0'; // Menghapus newline jika ada
+        if (strcasecmp(stringCompCleanse, stringCleanse) == 0){
             return (0);
         }
     }
@@ -29,12 +35,6 @@ DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], H
     while (traversalNode!=NULL){
         int violations=0;
 
-        if (isPrefered(7,shift,traversalNode->data.hari)!=0){
-            violations+=1;
-        }
-        if (isPrefered(3,shift,traversalNode->data.shift)!=0){
-            violations+=1;
-        }
 
         if (traversalNode->data.maxShift > findDoctorShift(traversalNode->data.id,Jadwal,hariLewat)){
             int isDuplicate = 0;
@@ -47,6 +47,12 @@ DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], H
             }
 
             if (!isDuplicate) {
+                if (isPrefered(7,hari,traversalNode->data.hari)!=0){
+                    violations+=1;
+                }
+                if (isPrefered(3,shift,traversalNode->data.shift)!=0){
+                    violations+=1;
+                }
                 if (violations==0){
                     tempMatch.doctor=traversalNode->data;
                     tempMatch.violations=violations;
