@@ -9,4 +9,6 @@ gcc src/main.c Function/dokter.c Function/penjadwalan.c -IFunction -IData -o bui
 
 lalu, untuk menjalankan program:
 
-build\Debug\outDebug.exe
+Untuk Windows: build\Debug\outDebug.exe
+
+Untuk macOS/Linux: ./build/Debug/outDebug
