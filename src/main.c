@@ -6,8 +6,11 @@ int main(void){
     ListNode *head = createDokterList();
     displayDokters(head);
     HariKalender Jadwal[31];
-    buatJadwal (Jadwal,&numViolations,head);
+    dynamicArray dynArrayViolation;
+    initArray(&dynArrayViolation,1);
+    buatJadwal (Jadwal,&numViolations,head,&dynArrayViolation);
     printJadwal(Jadwal,30);
+    printPelanggaran(dynArrayViolation,Jadwal);
     printf ("Jumlah pelanggaran shift dan hari :%d",numViolations);
     // Membersihkan memori (sederhana)
     while (head != NULL) {
