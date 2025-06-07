@@ -155,6 +155,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
 }
 
 void printJadwal(HariKalender calendar[], int size) {
+    int hariTidakTerisi=0;
     for (int i = 0; i < size; i++) {
         printf("\nHari: %s (%d/%d/%d)\n", 
                calendar[i].namaHari, 
@@ -169,12 +170,14 @@ void printJadwal(HariKalender calendar[], int size) {
                     printf("  Nama Dokter: %s\n", calendar[i].ArrayDokter[k][j].nama);
                 }
                 else {
+                    hariTidakTerisi+=1;
                     printf("  Tidak Ada Dokter tersedia!\n");
                 }
             }
             printf("  ------------------\n");
         }
     }
+    printf("\nJumlah shift tidak terisi: %d\n", hariTidakTerisi);
 }
 
 void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]) {
