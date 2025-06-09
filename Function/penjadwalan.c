@@ -15,7 +15,7 @@ int isPrefered(int size,char stringComp[],char arrayPref[][10]){
     return (1);
 }
 
-int checkUniqueViolation(ViolationData ArrayVio[],int sizeArray,Dokter dicari){
+int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari){
     for (int i=0;i<sizeArray;i++){
         if (ArrayVio[i].dokter.id==dicari.id){
             return (i);
@@ -124,43 +124,43 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
             for (int k=0;k<calendar[i].kebutuhanDokter[j];k++){//untuk setiap kebutuhan dokter pada shift
                 DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1,j);
                 if (cari.violations!=999) {
-                    ViolationData doctorShift;
+                    DailyData doctorShift;
                     doctorShift.dokter = cari.doctor;
                     for (int l=0;l<31;l++){//setting index yang tidak berisi menjadi default -1
-                            doctorShift.indexViolation[0][l]=-1;
-                            doctorShift.indexViolation[1][l]=-1;
+                            doctorShift.indexHari[0][l]=-1;
+                            doctorShift.indexHari[1][l]=-1;
                     }
-                    int tempIndex = checkUniqueViolation(shiftArray->arrayViolation,shiftArray->size,cari.doctor);
+                    int tempIndex = checkUniqueViolation(shiftArray->array,shiftArray->size,cari.doctor);
                     if (tempIndex==-1){
-                        doctorShift.totalViolations=1;
-                        doctorShift.indexViolation[0][0]=i;
-                        doctorShift.indexViolation[1][0]=j;
+                        doctorShift.total=1;
+                        doctorShift.indexHari[0][0]=i;
+                        doctorShift.indexHari[1][0]=j;
                         insertArray(shiftArray,doctorShift);
                     }
                     else {
-                        shiftArray->arrayViolation[tempIndex].indexViolation[0][shiftArray->arrayViolation[tempIndex].totalViolations]=i;
-                        shiftArray->arrayViolation[tempIndex].indexViolation[1][shiftArray->arrayViolation[tempIndex].totalViolations]=j;
-                        shiftArray->arrayViolation[tempIndex].totalViolations+=1;
+                        shiftArray->array[tempIndex].indexHari[0][shiftArray->array[tempIndex].total]=i;
+                        shiftArray->array[tempIndex].indexHari[1][shiftArray->array[tempIndex].total]=j;
+                        shiftArray->array[tempIndex].total+=1;
                     }
                     calendar[i].ArrayDokter[k][j] = cari.doctor;
                     if (cari.violations!=0){
-                        ViolationData pelanggaran;
+                        DailyData pelanggaran;
                         pelanggaran.dokter=cari.doctor;
                         for (int l=0;l<31;l++){//setting index yang tidak berisi menjadi default -1
-                            pelanggaran.indexViolation[0][l]=-1;
-                            pelanggaran.indexViolation[1][l]=-1;
+                            pelanggaran.indexHari[0][l]=-1;
+                            pelanggaran.indexHari[1][l]=-1;
                         }
-                        int tempIndex = checkUniqueViolation(violationArray->arrayViolation,violationArray->size,cari.doctor);
+                        int tempIndex = checkUniqueViolation(violationArray->array,violationArray->size,cari.doctor);
                         if (tempIndex==-1){
-                            pelanggaran.totalViolations=1;
-                            pelanggaran.indexViolation[0][0]=i;
-                            pelanggaran.indexViolation[1][0]=j;
+                            pelanggaran.total=1;
+                            pelanggaran.indexHari[0][0]=i;
+                            pelanggaran.indexHari[1][0]=j;
                             insertArray(violationArray,pelanggaran);
                         }
                         else {
-                            violationArray->arrayViolation[tempIndex].indexViolation[0][violationArray->arrayViolation[tempIndex].totalViolations]=i;
-                            violationArray->arrayViolation[tempIndex].indexViolation[1][violationArray->arrayViolation[tempIndex].totalViolations]=j;
-                            violationArray->arrayViolation[tempIndex].totalViolations+=1;
+                            violationArray->array[tempIndex].indexHari[0][violationArray->array[tempIndex].total]=i;
+                            violationArray->array[tempIndex].indexHari[1][violationArray->array[tempIndex].total]=j;
+                            violationArray->array[tempIndex].total+=1;
                         }
                         *numViolations += 1;
                     }
@@ -205,18 +205,18 @@ void printJadwal(HariKalender calendar[], int size) {
 
 void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]) {
     for (int i = 0; i < arrayViolation.used; i++) {
-        ViolationData *current = &arrayViolation.arrayViolation[i];
+        DailyData *current = &arrayViolation.array[i];
         
         printf("Dokter: %s\n", current->dokter.nama);
-        printf("  Total pelanggaran: %d\n", current->totalViolations);
+        printf("  Total pelanggaran: %d\n", current->total);
         printf("  Hari:\n");
         
         for (int j = 0; j < 31; j++) {
-            if (current->indexViolation[0][j] != -1) {
-                int dayIndex = current->indexViolation[0][j];
+            if (current->indexHari[0][j] != -1) {
+                int dayIndex = current->indexHari[0][j];
                 printf("    -%s %s (%d/%d/%d)\n", 
                     Jadwal[dayIndex].namaHari, 
-                    Jadwal[dayIndex].shift[current->indexViolation[1][j]],
+                    Jadwal[dayIndex].shift[current->indexHari[1][j]],
                     Jadwal[dayIndex].dd, 
                     Jadwal[dayIndex].mm, 
                     Jadwal[dayIndex].yy
@@ -230,18 +230,18 @@ void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]) {
 //Sama seperti printPelanggaran, hanya saja ini untuk shift
 void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]) {
     for (int i = 0; i < arrayViolation.used; i++) {
-        ViolationData *current = &arrayViolation.arrayViolation[i];
+        DailyData *current = &arrayViolation.array[i];
         
         printf("Dokter: %s\n", current->dokter.nama);
-        printf("  Total shift: %d\n", current->totalViolations);
+        printf("  Total shift: %d\n", current->total);
         printf("  Hari:\n");
         
         for (int j = 0; j < 31; j++) {
-            if (current->indexViolation[0][j] != -1) {
-                int dayIndex = current->indexViolation[0][j];
+            if (current->indexHari[0][j] != -1) {
+                int dayIndex = current->indexHari[0][j];
                 printf("    -%s %s (%d/%d/%d)\n", 
                     Jadwal[dayIndex].namaHari, 
-                    Jadwal[dayIndex].shift[current->indexViolation[1][j]],
+                    Jadwal[dayIndex].shift[current->indexHari[1][j]],
                     Jadwal[dayIndex].dd, 
                     Jadwal[dayIndex].mm, 
                     Jadwal[dayIndex].yy
@@ -253,21 +253,21 @@ void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]) {
 }
 
 void initArray(dynamicArray* array, size_t ukuranArray) {
-    array->arrayViolation = (ViolationData*)malloc(ukuranArray * sizeof(ViolationData));
+    array->array= (DailyData*)malloc(ukuranArray * sizeof(DailyData));
     array->used = 0;
     array->size = ukuranArray;
 }
 
-void insertArray(dynamicArray* array, ViolationData element) {
+void insertArray(dynamicArray* array, DailyData element) {
     if (array->used == array->size) {
         array->size *= 2;  // doubling size
-        array->arrayViolation = (ViolationData*)realloc(array->arrayViolation, array->size * sizeof(ViolationData));
+        array->array = (DailyData*)realloc(array->array, array->size * sizeof(DailyData));
     }
-    array->arrayViolation[array->used++] = element;
+    array->array[array->used++] = element;
 }
 
 void freeArray(dynamicArray *array) {
-    free(array->arrayViolation);
-    array->arrayViolation = NULL;
+    free(array->array);
+    array->array = NULL;
     array->used = array->size = 0;
 }

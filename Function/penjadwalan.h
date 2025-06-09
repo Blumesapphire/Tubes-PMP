@@ -19,12 +19,12 @@ typedef struct {
 
 typedef struct {
     Dokter dokter; //data dokter
-    int totalViolations; //jumlah total violation
-    int indexViolation[2][31];//lokasi di array kalender dimana violation terjadi [hari][shift]
-} ViolationData;
+    int total; //jumlah total violation/shift
+    int indexHari[2][31];//lokasi di array kalender dimana violation/shift terjadi [hari][shift]
+} DailyData;
 
 typedef struct {
-    ViolationData *arrayViolation;
+    DailyData *array;
     size_t used;
     size_t size;
 } dynamicArray;
@@ -35,9 +35,9 @@ DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], H
 int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat);
 void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray);
 void printJadwal(HariKalender calendar[], int size);
-int checkUniqueViolation(ViolationData ArrayVio[],int sizeArray,Dokter dicari); //Mencari dicari di ArrayVio dengan size sizeArray , mengembalikan -1 bila tidak ditemukan
+int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari); //Mencari dicari di ArrayVio dengan size sizeArray , mengembalikan -1 bila tidak ditemukan
 void freeArray(dynamicArray *array);
-void insertArray(dynamicArray* array, ViolationData element);
+void insertArray(dynamicArray* array, DailyData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
 void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]);
 void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]);
