@@ -1,4 +1,21 @@
 Id,Nama,MaxShift,Hari,Shift
-1,Le Alexander,17,Selasa;Senin;Kamis;Jumat,Malam;Siang;Pagi
-2,Le Vaeline,5,Selasa,Malam;Siang
-3,Bahlil,9,Kamis;Jumat,Siang
+1,Le Alexander,4,Selasa;Senin;Kamis;Jumat,Malam;Siang;Pagi
+2,Le Vaeline,1,Selasa,Malam;Siang
+3,Bahlil,3,Kamis;Jumat,Siang
+4,Siti Rahma,2,Senin;Rabu;Jumat,Pagi;Siang
+5,Andi Gunawan,5,Senin;Selasa;Rabu;Kamis;Jumat,Pagi;Siang;Malam
+6,Nina Kartika,3,Selasa;Kamis;Sabtu,Siang;Malam
+7,Ahmad Razi,2,Rabu;Kamis;Jumat,Malam
+8,Dewi Saraswati,1,Jumat,Pagi
+9,Yusuf Malik,4,Senin;Selasa;Rabu,Pagi;Siang
+10,Clara Tedja,2,Selasa;Rabu;Kamis,Pagi
+11,Fatma Ayu,3,Senin;Selasa;Rabu,Pagi;Siang
+12,Ridho Pratama,2,Kamis;Jumat,Malam
+13,Hendri Susanto,5,Senin;Rabu;Kamis;Sabtu,Pagi;Siang;Malam
+14,Maya Lestari,3,Selasa;Rabu,Pagi;Siang
+15,Danu Prakoso,4,Senin;Selasa;Rabu;Kamis,Malam
+16,Linda Sari,2,Kamis;Jumat,Pagi
+17,Robert Salim,3,Senin;Kamis;Sabtu,Siang;Malam
+18,Monica Halim,1,Rabu,Pagi
+19,Bimo Nugroho,4,Selasa;Kamis;Jumat,Siang;Malam
+20,Ayu Ramadhani,3,Senin;Rabu;Jumat,Pagi;Siang
