@@ -7,10 +7,13 @@ int main(void){
     displayDokters(head);
     HariKalender Jadwal[31];
     dynamicArray dynArrayViolation;
+    dynamicArray dynArrayShift;
+    initArray(&dynArrayShift,1);
     initArray(&dynArrayViolation,1);
-    buatJadwal (Jadwal,&numViolations,head,&dynArrayViolation);
+    buatJadwal (Jadwal,&numViolations,head,&dynArrayViolation,&dynArrayShift);
     printJadwal(Jadwal,30);
     printPelanggaran(dynArrayViolation,Jadwal);
+    printShift(dynArrayShift,Jadwal);
     // Membersihkan memori (sederhana)
     while (head != NULL) {
         ListNode* temp = head;

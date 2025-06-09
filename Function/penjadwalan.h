@@ -1,5 +1,6 @@
 #include "dokter.h"
 #include <time.h>
+#include <math.h>
 
 typedef struct DoctorViolation {
     Dokter doctor;
@@ -32,10 +33,11 @@ typedef struct {
 int isPrefered(int size,char stringComp[],char arrayPref[][10]);
 DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], HariKalender Jadwal[],int hariLewat,int currentShift);
 int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat);
-void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray);
+void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray);
 void printJadwal(HariKalender calendar[], int size);
 int checkUniqueViolation(ViolationData ArrayVio[],int sizeArray,Dokter dicari); //Mencari dicari di ArrayVio dengan size sizeArray , mengembalikan -1 bila tidak ditemukan
 void freeArray(dynamicArray *array);
 void insertArray(dynamicArray* array, ViolationData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
 void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]);
+void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]);

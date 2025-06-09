@@ -70,8 +70,13 @@ DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], H
 }
 
 int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat){
+    int hariMingguLalu=0;
+    if (hariLewat > 7) {
+        hariMingguLalu = (hariLewat - 7);
+    }
     int count=0;
-    for (int i=0;i<hariLewat;i++){ // untuk setiap hari yang lewat
+
+    for (int i=(hariMingguLalu);i<hariLewat;i++){ // untuk setiap hari yang lewat
         for (int j=0;j<3;j++){  //untuk setiap shift
             for (int k=0;k<arrayJadwal[i].kebutuhanDokter[j];k++){ //untuk setiap dokter
                 if (arrayJadwal[i].ArrayDokter[k][j].id==ID){
@@ -83,7 +88,7 @@ int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat){
     return count;
 }
 
-void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray) {
+void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray) {
     time_t now;
     time(&now);
     struct tm *current = localtime(&now);
@@ -119,6 +124,24 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
             for (int k=0;k<calendar[i].kebutuhanDokter[j];k++){//untuk setiap kebutuhan dokter pada shift
                 DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1,j);
                 if (cari.violations!=999) {
+                    ViolationData doctorShift;
+                    doctorShift.dokter = cari.doctor;
+                    for (int l=0;l<31;l++){//setting index yang tidak berisi menjadi default -1
+                            doctorShift.indexViolation[0][l]=-1;
+                            doctorShift.indexViolation[1][l]=-1;
+                    }
+                    int tempIndex = checkUniqueViolation(shiftArray->arrayViolation,shiftArray->size,cari.doctor);
+                    if (tempIndex==-1){
+                        doctorShift.totalViolations=1;
+                        doctorShift.indexViolation[0][0]=i;
+                        doctorShift.indexViolation[1][0]=j;
+                        insertArray(shiftArray,doctorShift);
+                    }
+                    else {
+                        shiftArray->arrayViolation[tempIndex].indexViolation[0][shiftArray->arrayViolation[tempIndex].totalViolations]=i;
+                        shiftArray->arrayViolation[tempIndex].indexViolation[1][shiftArray->arrayViolation[tempIndex].totalViolations]=j;
+                        shiftArray->arrayViolation[tempIndex].totalViolations+=1;
+                    }
                     calendar[i].ArrayDokter[k][j] = cari.doctor;
                     if (cari.violations!=0){
                         ViolationData pelanggaran;
@@ -203,6 +226,32 @@ void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]) {
         printf("\n");
     }
 }
+
+//Sama seperti printPelanggaran, hanya saja ini untuk shift
+void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]) {
+    for (int i = 0; i < arrayViolation.used; i++) {
+        ViolationData *current = &arrayViolation.arrayViolation[i];
+        
+        printf("Dokter: %s\n", current->dokter.nama);
+        printf("  Total shift: %d\n", current->totalViolations);
+        printf("  Hari:\n");
+        
+        for (int j = 0; j < 31; j++) {
+            if (current->indexViolation[0][j] != -1) {
+                int dayIndex = current->indexViolation[0][j];
+                printf("    -%s %s (%d/%d/%d)\n", 
+                    Jadwal[dayIndex].namaHari, 
+                    Jadwal[dayIndex].shift[current->indexViolation[1][j]],
+                    Jadwal[dayIndex].dd, 
+                    Jadwal[dayIndex].mm, 
+                    Jadwal[dayIndex].yy
+                );
+            }
+        }
+        printf("\n");
+    }
+}
+
 void initArray(dynamicArray* array, size_t ukuranArray) {
     array->arrayViolation = (ViolationData*)malloc(ukuranArray * sizeof(ViolationData));
     array->used = 0;
