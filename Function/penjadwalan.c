@@ -121,7 +121,60 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
         calendar[i].kebutuhanDokter[2]=1; //malam
 
         for (int j = 0; j < 3; j++) {//untuk setiap shift
-            for (int k=0;k<calendar[i].kebutuhanDokter[j];k++){//untuk setiap kebutuhan dokter pada shift
+            DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1,j);
+            if (cari.violations!=999) {
+                DailyData doctorShift;
+                doctorShift.dokter = cari.doctor;
+                for (int l=0;l<31;l++){//setting index yang tidak berisi menjadi default -1
+                        doctorShift.indexHari[0][l]=-1;
+                        doctorShift.indexHari[1][l]=-1;
+                }
+                int tempIndex = checkUniqueViolation(shiftArray->array,shiftArray->size,cari.doctor);
+                if (tempIndex==-1){
+                    doctorShift.total=1;
+                    doctorShift.indexHari[0][0]=i;
+                    doctorShift.indexHari[1][0]=j;
+                    insertArray(shiftArray,doctorShift);
+                }
+                else {
+                    shiftArray->array[tempIndex].indexHari[0][shiftArray->array[tempIndex].total]=i;
+                    shiftArray->array[tempIndex].indexHari[1][shiftArray->array[tempIndex].total]=j;
+                    shiftArray->array[tempIndex].total+=1;
+                }
+                calendar[i].ArrayDokter[0][j] = cari.doctor;
+                if (cari.violations!=0){
+                    DailyData pelanggaran;
+                    pelanggaran.dokter=cari.doctor;
+                    for (int l=0;l<31;l++){//setting index yang tidak berisi menjadi default -1
+                        pelanggaran.indexHari[0][l]=-1;
+                        pelanggaran.indexHari[1][l]=-1;
+                    }
+                    int tempIndex = checkUniqueViolation(violationArray->array,violationArray->size,cari.doctor);
+                    if (tempIndex==-1){
+                        pelanggaran.total=1;
+                        pelanggaran.indexHari[0][0]=i;
+                        pelanggaran.indexHari[1][0]=j;
+                        insertArray(violationArray,pelanggaran);
+                    }
+                    else {
+                        violationArray->array[tempIndex].indexHari[0][violationArray->array[tempIndex].total]=i;
+                        violationArray->array[tempIndex].indexHari[1][violationArray->array[tempIndex].total]=j;
+                        violationArray->array[tempIndex].total+=1;
+                    }
+                    *numViolations += 1;
+                }
+            } else {
+                // Handling kasus tidak ada dokter
+                calendar[i].ArrayDokter[0][j].id = -1; // tanda ID tidak assigned
+            }
+        }
+        //iterasi ke hari selanjutnya
+        current->tm_mday += 1;
+        mktime(current);
+    }
+    for (int i = 0; i < 31; i++) {
+        for (int j = 0; j < 3; j++) {//untuk setiap shift
+            for (int k=1;k<calendar[i].kebutuhanDokter[j];k++){//untuk setiap kebutuhan dokter pada shift
                 DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1,j);
                 if (cari.violations!=999) {
                     DailyData doctorShift;
@@ -169,12 +222,8 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                     calendar[i].ArrayDokter[k][j].id = -1; // tanda ID tidak assigned
                 }
             }
-            
         }
-        //iterasi ke hari selanjutnya
-        current->tm_mday += 1;
-        mktime(current);
-    }
+    }        
 }
 
 void printJadwal(HariKalender calendar[], int size) {
