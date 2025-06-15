@@ -181,11 +181,72 @@ ListNode *createDokterList() {
   return (head);
 }
 
+void hapusDokter(ListNode **head, int targetId) {
+  ListNode *current = *head, *prev = NULL;
+
+  // Cari node yang ingin dihapus
+  while (current != NULL && current->data.id != targetId) {
+    prev = current;
+    current = current->next;
+  }
+
+  if (current == NULL) {
+    printf("Dokter dengan ID %d tidak ditemukan.\n", targetId);
+    return;
+  }
+
+  // Hapus dari linked list
+  if (prev == NULL) {
+    *head = current->next;
+  } else {
+    prev->next = current->next;
+  }
+  free(current);
+
+  // Tulis ulang ke file CSV
+  FILE *file = fopen("../Data/data_dokter.csv", "w");
+  if (file == NULL) {
+    printf("Gagal membuka file.\n");
+    return;
+  }
+
+  // Header
+  fprintf(file, "Id,Nama,MaxShift,Hari,Shift\n");
+
+  ListNode *temp = *head;
+  while (temp != NULL) {
+    // Gabungkan hari dan shift jadi string CSV
+    char hariJoin[100] = "", shiftJoin[100] = "";
+    for (int i = 0; i < 7 && strlen(temp->data.hari[i]) > 0; i++) {
+      strcat(hariJoin, temp->data.hari[i]);
+      if (i < 6 && strlen(temp->data.hari[i + 1]) > 0) strcat(hariJoin, ";");
+    }
+    for (int i = 0; i < 3 && strlen(temp->data.shift[i]) > 0; i++) {
+      strcat(shiftJoin, temp->data.shift[i]);
+      if (i < 2 && strlen(temp->data.shift[i + 1]) > 0) strcat(shiftJoin, ";");
+    }
+
+    fprintf(file, "%d,%s,%d,%s,%s\n", temp->data.id, temp->data.nama, temp->data.maxShift, hariJoin, shiftJoin);
+    temp = temp->next;
+  }
+
+  fclose(file);
+  printf("Dokter dengan ID %d berhasil dihapus.\n", targetId);
+}
+
 int main() {
   ListNode *dokters = createDokterList();
   displayDokters(dokters);
 
   tambahDokter(&dokters);
   displayDokters(dokters);
+
+  int idHapus;
+  printf("Masukkan ID dokter yang ingin dihapus: ");
+  scanf("%d", &idHapus);
+  hapusDokter(&dokters, idHapus);
+  displayDokters(dokters);
+
   return 0;
 }
+
