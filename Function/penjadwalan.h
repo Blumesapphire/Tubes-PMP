@@ -1,7 +1,7 @@
 #include "dokter.h"
 #include <time.h>
 #include <math.h>
-
+#include <sys/stat.h>
 typedef struct DoctorViolation {
     Dokter doctor;
     int violations;
@@ -41,3 +41,5 @@ void insertArray(dynamicArray* array, DailyData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
 void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]);
 void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]);
+int tanggalSudahAda(const char* namaFile, const char* tanggal);
+void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile);

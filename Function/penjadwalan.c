@@ -320,3 +320,67 @@ void freeArray(dynamicArray *array) {
     array->array = NULL;
     array->used = array->size = 0;
 }
+
+int tanggalSudahAda(const char* namaFile, const char* tanggal) {
+    FILE* file = fopen(namaFile, "r");
+    if (!file) return 0;
+
+    char baris[256];
+    while (fgets(baris, sizeof(baris), file)) {
+        if (strncmp(baris, tanggal, strlen(tanggal)) == 0) {
+            fclose(file);
+            return 1;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) {
+    FILE *file;
+    struct stat st;
+    int fileKosong = (stat(namaFile, &st) != 0 || st.st_size == 0);
+
+    file = fopen(namaFile, "a");
+    if (!file) {
+        perror("Gagal membuka file CSV");
+        return;
+    }
+
+    // Tulis header jika file kosong
+    if (fileKosong) {
+        fprintf(file, "Tanggal,Pagi,Siang,Malam\n");
+    }
+
+    for (int i = 0; i < size; i++) {
+        char tanggal[20];
+        snprintf(tanggal, sizeof(tanggal), "%02d/%02d/%04d", calendar[i].dd, calendar[i].mm, calendar[i].yy);
+
+        if (tanggalSudahAda(namaFile, tanggal)) {
+            continue;
+        }
+
+        fprintf(file, "%s", tanggal); //tulis tanggal
+        for (int shift = 0; shift < 3; shift++) { //tulis pagi siang malam
+            fprintf(file, ",");
+            int kosong = 1;
+            for (int k = 0; k < calendar[i].kebutuhanDokter[shift]; k++) {
+                int id = calendar[i].ArrayDokter[k][shift].id;
+                if (id != -1) {
+                    if (!kosong) fprintf(file, ";");
+                    fprintf(file, "%d", id);
+                    kosong = 0;
+                }
+            }
+            if (kosong) {
+                fprintf(file, "(Kosong)");
+            }
+        }
+
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+    printf("Jadwal berhasil ditambahkan ke file: %s\n", namaFile);
+}

@@ -14,6 +14,7 @@ int main(void){
     printJadwal(Jadwal,30);
     printPelanggaran(dynArrayViolation,Jadwal);
     printShift(dynArrayShift,Jadwal);
+    simpanJadwalKeCSV(Jadwal, 30, "Data/jadwal.csv");
     // Membersihkan memori (sederhana)
     while (head != NULL) {
         ListNode* temp = head;
