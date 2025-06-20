@@ -1,4 +1,5 @@
 #include "penjadwalan.h"
+#include <time.h>
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]){
     char stringCleanse[10];
@@ -383,4 +384,218 @@ void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) 
 
     fclose(file);
     printf("Jadwal berhasil ditambahkan ke file: %s\n", namaFile);
+}
+
+ListNode2* findDokterById(ListNode2* head, int id) {
+    ListNode2* current = head;
+    while (current != NULL) {
+        if (current->data.id == id) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+// ngebuat linked list dari jadwal.csv
+JadwalNode *createJadwalList() {
+    JadwalNode *head = NULL;
+    JadwalNode *current = NULL;
+    JadwalNode *newNode = NULL;
+
+    FILE *file = fopen("Data/jadwal.csv", "r");
+    if (file == NULL) {
+        printf("Gagal membuka file Data/jadwal.csv\n");
+        return NULL;
+    }
+
+    char line[100];
+    fgets(line, sizeof(line), file); // Skip header
+
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\n")] = 0;
+        char tempPagi[50], tempSiang[50], tempMalam[50];
+        char tanggal[11];
+
+        sscanf(line, "%10[^,],%49[^,],%49[^,],%49[^,]", tanggal, tempPagi, tempSiang, tempMalam);
+
+        // dihitung dokter masing-masing sesi
+        newNode = (JadwalNode*)malloc(sizeof(JadwalNode));
+        strcpy(newNode->data.tanggal, tanggal);
+        newNode->data.pagiCount = 0;
+        newNode->data.siangCount = 0;
+        newNode->data.malamCount = 0;
+
+        // pagi
+        char* token = strtok(tempPagi, ";");
+        while (token != NULL && newNode->data.pagiCount < 5) {
+            newNode->data.pagi[newNode->data.pagiCount++] = atoi(token);
+            token = strtok(NULL, ";");
+        }
+
+        // siang
+        token = strtok(tempSiang, ";");
+        while (token != NULL && newNode->data.siangCount < 5) {
+            newNode->data.siang[newNode->data.siangCount++] = atoi(token);
+            token = strtok(NULL, ";");
+        }
+
+        // malam
+        token = strtok(tempMalam, ";");
+        while (token != NULL && newNode->data.malamCount < 5) {
+            newNode->data.malam[newNode->data.malamCount++] = atoi(token);
+            token = strtok(NULL, ";");
+        }
+
+        newNode->next = NULL;
+        if (head == NULL) {
+            head = newNode;
+            current = newNode;
+        } else {
+            current->next = newNode;
+            current = newNode;
+        }
+    }
+
+    fclose(file);
+    return (head);
+}
+
+// buat menghitung isi di jadwal.csvnya ada berapa
+int countJadwalNodes(JadwalNode* head) {
+    int count = 0;
+    JadwalNode* current = head;
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+    return (count);
+}
+
+void displaySchedule(ListNode2 *dokterHead, JadwalNode* jadwalHead) {
+    // ngambil data untuk sekarang (real time)
+    time_t t = time(NULL);
+    struct tm* currentTime = localtime(&t);
+    int currentDay = currentTime->tm_mday;
+    int currentMonth = currentTime->tm_mon + 1;
+    int currentYear = currentTime->tm_year + 1900;
+    char currentDate[11];
+
+    sprintf(currentDate, "%02d/%02d/%04d", currentDay, currentMonth, currentYear);
+
+    // hitung total data di jadwal.csv ada berapa
+    // kalau ada 0 maka tidak ada isinya, langsung saja keluar dari program
+    int totalJadwal = countJadwalNodes(jadwalHead);
+    if (totalJadwal == 0) {
+        return;
+    }
+
+    // program ini menampilkan: 
+    // 10 hari sebelum
+    // sekarang
+    // 10 hari dari sekarang
+    // Nyari posisi (indeks) tanggal saat ini agar bisa menampilkan harapan output program
+    JadwalNode* currentJadwal = jadwalHead;
+    int currentIndex = 0;
+    int currentPosition = -1;
+    while (currentJadwal != NULL) {
+        if (strcmp(currentJadwal->data.tanggal, currentDate) == 0) {
+            currentPosition = currentIndex;
+            break;
+        }
+        currentJadwal = currentJadwal->next;
+        currentIndex++;
+    }
+
+    int startIndex, endIndex;
+    // kalau total jadwal kurang dari (10 sebelum + sekarang + 10 setelah) = 21 data
+    // tampilkan seadanya
+    if (currentPosition == -1 || totalJadwal < 21) {
+        startIndex = 0;
+        endIndex = totalJadwal - 1;
+    } else {
+        startIndex = currentPosition - 10;
+        endIndex = currentPosition + 10;
+        if (startIndex < 0) startIndex = 0;
+        if (endIndex >= totalJadwal) endIndex = totalJadwal - 1;
+    }
+
+    currentJadwal = jadwalHead;
+    currentIndex = 0;
+    while (currentJadwal != NULL) {
+        if (currentIndex >= startIndex && currentIndex <= endIndex) {
+            printf("%s\n", currentJadwal->data.tanggal);
+            printf("Pagi\n");
+            for (int i = 0; i < currentJadwal->data.pagiCount; i++) {
+                ListNode* dokter = findDokterById(dokterHead, currentJadwal->data.pagi[i]);
+                if (dokter != NULL) {
+                    printf("%s\n", dokter->data.nama);
+                }
+            }
+            printf("Siang\n");
+            for (int i = 0; i < currentJadwal->data.siangCount; i++) {
+                ListNode* dokter = findDokterById(dokterHead, currentJadwal->data.siang[i]);
+                if (dokter != NULL) {
+                    printf("%s\n", dokter->data.nama);
+                }
+            }
+            printf("Malam\n");
+            for (int i = 0; i < currentJadwal->data.malamCount; i++) {
+                ListNode* dokter = findDokterById(dokterHead, currentJadwal->data.malam[i]);
+                if (dokter != NULL) {
+                    printf("%s\n", dokter->data.nama);
+                }
+            }
+            printf("\n");
+        }
+        currentJadwal = currentJadwal->next;
+        currentIndex++;
+    }
+}
+
+// fungsi untuk ngari dokter pada tanggal tertentu
+void displayDoctorsByDate(ListNode2 *dokterHead, JadwalNode *jadwalHead) {
+    char inputDate[11];
+    printf("Masukkan tanggal (dd/mm/yyyy): ");
+    scanf("%s", inputDate);
+
+    // cek apakah ada tanggal yang sama dengan yang diinput
+    JadwalNode *currentJadwal = jadwalHead;
+    while (currentJadwal != NULL) {
+        if (strcmp(currentJadwal->data.tanggal, inputDate) == 0) {
+            break;
+        }
+        currentJadwal = currentJadwal->next;
+    }
+
+    printf("%s\n", inputDate);
+    printf("Pagi:\n");
+    if (currentJadwal != NULL) {
+        for (int i = 0; i < currentJadwal->data.pagiCount; i++) {
+            ListNode* dokter = findDokterById(dokterHead, currentJadwal->data.pagi[i]);
+            if (dokter != NULL) {
+                printf("%s\n", dokter->data.nama);
+            }
+        }
+    }
+
+    printf("Siang:\n");
+    if (currentJadwal != NULL) {
+        for (int i = 0; i < currentJadwal->data.siangCount; i++) {
+            ListNode* dokter = findDokterById(dokterHead, currentJadwal->data.siang[i]);
+            if (dokter != NULL) {
+                printf("%s\n", dokter->data.nama);
+            }
+        }
+    }
+
+    printf("Malam:\n");
+    if (currentJadwal != NULL) {
+        for (int i = 0; i < currentJadwal->data.malamCount; i++) {
+            ListNode* dokter = findDokterById(dokterHead, currentJadwal->data.malam[i]);
+            if (dokter != NULL) {
+                printf("%s\n", dokter->data.nama);
+            }
+        }
+    }
 }

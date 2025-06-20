@@ -2,6 +2,7 @@
 #include <time.h>
 #include <math.h>
 #include <sys/stat.h>
+
 typedef struct DoctorViolation {
     Dokter doctor;
     int violations;
@@ -29,6 +30,39 @@ typedef struct {
     size_t size;
 } dynamicArray;
 
+typedef struct {
+    int id;
+    char nama[50];
+    int maxShift;
+    char hari[7][20]; // Array to hold up to 7 days
+    char shift[3][20]; // Array to hold up to 3 shifts (Pagi, Siang, Malam)
+} Dokter2;
+
+typedef struct ListNode2 {
+    Dokter2 data;
+    struct ListNode2* next;
+} ListNode2;
+
+typedef struct {
+    char tanggal[11]; // Format dd/mm/yyyy
+    int pagi[5];     // Array untuk ID dokter shift pagi (maks 10)
+    int siang[5];    // Array untuk ID dokter shift siang
+    int malam[5];    // Array untuk ID dokter shift malam
+    int pagiCount;    // Jumlah ID di pagi
+    int siangCount;   // Jumlah ID di siang
+    int malamCount;   // Jumlah ID di malam
+} Jadwal;
+
+typedef struct JadwalNode {
+    Jadwal data;
+    struct JadwalNode* next;
+} JadwalNode;
+
+ListNode2* createDokterList();
+JadwalNode* createJadwalList();
+ListNode2* findDokterById(ListNode2* head, int id);
+void displaySchedule(ListNode2* dokterHead, JadwalNode* jadwalHead);
+void displayDoctorsByDate(ListNode2 *dokterHead, JadwalNode* jadwalHead);
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]);
 DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], HariKalender Jadwal[],int hariLewat,int currentShift);
