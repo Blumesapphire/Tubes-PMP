@@ -30,18 +30,18 @@ typedef struct {
     size_t size;
 } dynamicArray;
 
-typedef struct {
-    int id;
-    char nama[50];
-    int maxShift;
-    char hari[7][20]; // Array to hold up to 7 days
-    char shift[3][20]; // Array to hold up to 3 shifts (Pagi, Siang, Malam)
-} Dokter2;
+// typedef struct {
+//     int id;
+//     char nama[50];
+//     int maxShift;
+//     char hari[7][10]; // Array to hold up to 7 days
+//     char shift[3][10]; // Array to hold up to 3 shifts (Pagi, Siang, Malam)
+// } Dokter2;
 
-typedef struct ListNode2 {
-    Dokter2 data;
-    struct ListNode2* next;
-} ListNode2;
+// typedef struct ListNode {
+//     Dokter data;
+//     struct ListNode* next;
+// } ListNode;
 
 typedef struct {
     char tanggal[11]; // Format dd/mm/yyyy
@@ -58,11 +58,11 @@ typedef struct JadwalNode {
     struct JadwalNode* next;
 } JadwalNode;
 
-ListNode2* createDokterList();
+ListNode* createDokterList();
 JadwalNode* createJadwalList();
-ListNode2* findDokterById(ListNode2* head, int id);
-void displaySchedule(ListNode2* dokterHead, JadwalNode* jadwalHead);
-void displayDoctorsByDate(ListNode2 *dokterHead, JadwalNode* jadwalHead);
+ListNode* findDokterById(ListNode* head, int id);
+void displaySchedule(ListNode* dokterHead, JadwalNode* jadwalHead);
+void displayDoctorsByDate(ListNode *dokterHead, JadwalNode* jadwalHead);
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]);
 DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], HariKalender Jadwal[],int hariLewat,int currentShift);
