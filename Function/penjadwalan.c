@@ -386,8 +386,8 @@ void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) 
     printf("Jadwal berhasil ditambahkan ke file: %s\n", namaFile);
 }
 
-ListNode2* findDokterById(ListNode2* head, int id) {
-    ListNode2* current = head;
+ListNode* findDokterById(ListNode* head, int id) {
+    ListNode* current = head;
     while (current != NULL) {
         if (current->data.id == id) {
             return current;
@@ -472,7 +472,7 @@ int countJadwalNodes(JadwalNode* head) {
     return (count);
 }
 
-void displaySchedule(ListNode2 *dokterHead, JadwalNode* jadwalHead) {
+void displaySchedule(ListNode *dokterHead, JadwalNode* jadwalHead) {
     // ngambil data untuk sekarang (real time)
     time_t t = time(NULL);
     struct tm* currentTime = localtime(&t);
@@ -510,14 +510,18 @@ void displaySchedule(ListNode2 *dokterHead, JadwalNode* jadwalHead) {
     int startIndex, endIndex;
     // kalau total jadwal kurang dari (10 sebelum + sekarang + 10 setelah) = 21 data
     // tampilkan seadanya
-    if (currentPosition == -1 || totalJadwal < 21) {
+    if ((currentPosition == -1) || (totalJadwal < 21)) {
         startIndex = 0;
         endIndex = totalJadwal - 1;
     } else {
         startIndex = currentPosition - 10;
         endIndex = currentPosition + 10;
-        if (startIndex < 0) startIndex = 0;
-        if (endIndex >= totalJadwal) endIndex = totalJadwal - 1;
+        if (startIndex < 0) {
+            startIndex = 0;
+        } 
+        if (endIndex >= totalJadwal) {
+            endIndex = totalJadwal - 1;
+        } 
     }
 
     currentJadwal = jadwalHead;
@@ -554,7 +558,7 @@ void displaySchedule(ListNode2 *dokterHead, JadwalNode* jadwalHead) {
 }
 
 // fungsi untuk ngari dokter pada tanggal tertentu
-void displayDoctorsByDate(ListNode2 *dokterHead, JadwalNode *jadwalHead) {
+void displayDoctorsByDate(ListNode *dokterHead, JadwalNode *jadwalHead) {
     char inputDate[11];
     printf("Masukkan tanggal (dd/mm/yyyy): ");
     scanf("%s", inputDate);

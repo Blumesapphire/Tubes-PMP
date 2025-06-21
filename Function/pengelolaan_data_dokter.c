@@ -8,17 +8,22 @@ void displayDokters(ListNode *head) {
     for (int i = 0; i < 7; i++) {
       if (strlen(current->data.hari[i]) > 0) {
         printf("%s", current->data.hari[i]);
-        if (i < 6 && strlen(current->data.hari[i+1]) > 0) printf(", ");
+        if (i < 6 && strlen(current->data.hari[i+1]) > 0) {
+          printf(", "); 
+        }
       }
     }
     printf("\nShift: ");
     for (int i = 0; i < 3; i++) {
       if (strlen(current->data.shift[i]) > 0) {
         printf("%s", current->data.shift[i]);
-        if (i < 2 && strlen(current->data.shift[i+1]) > 0) printf(", ");
+        if (i < 2 && strlen(current->data.shift[i+1]) > 0) {
+          printf(", ");
+        }
       }
     }
     printf("\n\n");
+    
     current = current->next;
   }
 }
