@@ -1,5 +1,4 @@
 #include "penjadwalan.h"
-#include <time.h>
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]){
     char stringCleanse[10];
