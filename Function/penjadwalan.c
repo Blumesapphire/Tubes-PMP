@@ -15,7 +15,7 @@ int isPrefered(int size,char stringComp[],char arrayPref[][10]){
     return (1);
 }
 
-int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari){
+int findUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari){
     for (int i=0;i<sizeArray;i++){
         if (ArrayVio[i].dokter.id==dicari.id){
             return (i);
@@ -129,7 +129,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                         doctorShift.indexHari[0][l]=-1;
                         doctorShift.indexHari[1][l]=-1;
                 }
-                int tempIndex = checkUniqueViolation(shiftArray->array,shiftArray->size,cari.doctor);
+                int tempIndex = findUniqueViolation(shiftArray->array,shiftArray->size,cari.doctor);
                 if (tempIndex==-1){
                     doctorShift.total=1;
                     doctorShift.indexHari[0][0]=i;
@@ -149,7 +149,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                         pelanggaran.indexHari[0][l]=-1;
                         pelanggaran.indexHari[1][l]=-1;
                     }
-                    int tempIndex = checkUniqueViolation(violationArray->array,violationArray->size,cari.doctor);
+                    int tempIndex = findUniqueViolation(violationArray->array,violationArray->size,cari.doctor);
                     if (tempIndex==-1){
                         pelanggaran.total=1;
                         pelanggaran.indexHari[0][0]=i;
@@ -183,7 +183,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                             doctorShift.indexHari[0][l]=-1;
                             doctorShift.indexHari[1][l]=-1;
                     }
-                    int tempIndex = checkUniqueViolation(shiftArray->array,shiftArray->size,cari.doctor);
+                    int tempIndex = findUniqueViolation(shiftArray->array,shiftArray->size,cari.doctor);
                     if (tempIndex==-1){
                         doctorShift.total=1;
                         doctorShift.indexHari[0][0]=i;
@@ -203,7 +203,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                             pelanggaran.indexHari[0][l]=-1;
                             pelanggaran.indexHari[1][l]=-1;
                         }
-                        int tempIndex = checkUniqueViolation(violationArray->array,violationArray->size,cari.doctor);
+                        int tempIndex = findUniqueViolation(violationArray->array,violationArray->size,cari.doctor);
                         if (tempIndex==-1){
                             pelanggaran.total=1;
                             pelanggaran.indexHari[0][0]=i;

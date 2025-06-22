@@ -69,7 +69,7 @@ DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], H
 int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat);
 void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray);
 void printJadwal(HariKalender calendar[], int size);
-int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari); //Mencari dicari di ArrayVio dengan size sizeArray , mengembalikan -1 bila tidak ditemukan
+int findUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari); //Mencari dicari di ArrayVio dengan size sizeArray , mengembalikan -1 bila tidak ditemukan
 void freeArray(dynamicArray *array);
 void insertArray(dynamicArray* array, DailyData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
