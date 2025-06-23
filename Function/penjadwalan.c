@@ -7,6 +7,16 @@
 #include <stdlib.h> 
 #include <ctype.h>
 
+int countJadwalNodes(JadwalNode* head) {
+    int count = 0;
+    JadwalNode* current = head;
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+    return (count);
+}
+
 static void clean_string(char *str) {
     str[strcspn(str, "\n")] = '\0';
     str[strcspn(str, "\r")] = '\0';
@@ -140,6 +150,70 @@ void freeArray(dynamicArray *array){
     array->size = 0;
 }
 
+// ngebuat linked list dari jadwal.csv
+JadwalNode *createJadwalList() {
+    JadwalNode *head = NULL;
+    JadwalNode *current = NULL;
+    JadwalNode *newNode = NULL;
+
+    FILE *file = fopen("Data/jadwal.csv", "r");
+    if (file == NULL) {
+        printf("Gagal membuka file Data/jadwal.csv\n");
+        return NULL;
+    }
+
+    char line[100];
+    fgets(line, sizeof(line), file); // Skip header
+
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\n")] = 0;
+        char tempPagi[50], tempSiang[50], tempMalam[50];
+        char tanggal[11];
+
+        sscanf(line, "%10[^,],%49[^,],%49[^,],%49[^,]", tanggal, tempPagi, tempSiang, tempMalam);
+
+        // dihitung dokter masing-masing sesi
+        newNode = (JadwalNode*)malloc(sizeof(JadwalNode));
+        strcpy(newNode->data.tanggal, tanggal);
+        newNode->data.pagiCount = 0;
+        newNode->data.siangCount = 0;
+        newNode->data.malamCount = 0;
+
+        // pagi
+        char* token = strtok(tempPagi, ";");
+        while (token != NULL && newNode->data.pagiCount < 5) {
+            newNode->data.pagi[newNode->data.pagiCount++] = atoi(token);
+            token = strtok(NULL, ";");
+        }
+
+        // siang
+        token = strtok(tempSiang, ";");
+        while (token != NULL && newNode->data.siangCount < 5) {
+            newNode->data.siang[newNode->data.siangCount++] = atoi(token);
+            token = strtok(NULL, ";");
+        }
+
+        // malam
+        token = strtok(tempMalam, ";");
+        while (token != NULL && newNode->data.malamCount < 5) {
+            newNode->data.malam[newNode->data.malamCount++] = atoi(token);
+            token = strtok(NULL, ";");
+        }
+
+        newNode->next = NULL;
+        if (head == NULL) {
+            head = newNode;
+            current = newNode;
+        } else {
+            current->next = newNode;
+            current = newNode;
+        }
+    }
+
+    fclose(file);
+    return (head);
+}
+
 void buatJadwal(HariKalender calendar[61], int* numViolations, ListNode* daftarDokter, dynamicArray* violationArray) {
     time_t now;
     time(&now);
@@ -255,6 +329,120 @@ void buatJadwal(HariKalender calendar[61], int* numViolations, ListNode* daftarD
             }
         }
     }
+}
+
+void jadwalBentukArray(int size, ListNode *dokterHead,HariKalender* kalender) {
+    JadwalNode* jadwalHead = createJadwalList();
+    if (jadwalHead == NULL) {
+        size = 0;
+        return;
+    }
+
+    int totalDays = countJadwalNodes(jadwalHead);
+    if (totalDays == 0) {
+        size = 0;
+        return;
+    }
+
+    // ngambil data untuk sekarang (real time)
+    time_t t = time(NULL);
+    struct tm* currentTime = localtime(&t);
+    int currentDay = currentTime->tm_mday;
+    int currentMonth = currentTime->tm_mon + 1;
+    int currentYear = currentTime->tm_year + 1900;
+    char currentDate[11];
+
+    sprintf(currentDate, "%02d/%02d/%04d", currentDay, currentMonth, currentYear);
+
+    // program ini menampilkan: 
+    // 10 hari sebelum
+    // sekarang
+    // 10 hari dari sekarang
+    // Nyari posisi (indeks) tanggal saat ini agar bisa menampilkan harapan output program
+    JadwalNode* currentJadwal = jadwalHead;
+    int currentIndex = 0;
+    int currentPosition = -1;
+    while (currentJadwal != NULL) {
+        if (strcmp(currentJadwal->data.tanggal, currentDate) == 0) {
+            currentPosition = currentIndex;
+            break;
+        }
+        currentJadwal = currentJadwal->next;
+        currentIndex++;
+    }
+
+    int startIndex, endIndex;
+    if (currentPosition == -1 || currentPosition < 30) {
+        startIndex = 0;
+    } else {
+        startIndex = currentPosition - 30;
+    }
+
+    if (currentPosition == -1) {
+        endIndex = totalDays - 1;
+    } else {
+        if (currentPosition + 30 < totalDays) {
+            endIndex = currentPosition + 30;
+        } else {
+            endIndex = totalDays - 1;
+        }
+    }
+
+    int range = endIndex - startIndex + 1;
+
+    currentJadwal = jadwalHead;
+    currentIndex = 0;
+    int arrayIndex = 0;
+
+    while (currentJadwal != NULL && arrayIndex < range) {
+        if (currentIndex >= startIndex && currentIndex <= endIndex) {
+
+            sscanf(currentJadwal->data.tanggal, "%d/%d/%d", &kalender[arrayIndex].dd, &kalender[arrayIndex].mm, &kalender[arrayIndex].yy);
+
+            for (int shift = 0; shift < 3; shift++) {
+                kalender[arrayIndex].kebutuhanDokter[shift] = 0;
+                for (int k = 0; k < 5; k++) {
+                    kalender[arrayIndex].ArrayDokter[k][shift].id = -1;
+                }
+            }
+
+            // Isi data dokter dari linked list
+            for (int shift = 0; shift < 3; shift++) {
+                int* count = NULL;
+                int* id = NULL;
+                if (shift == 0) {
+                    count = &currentJadwal->data.pagiCount;
+                    id = currentJadwal->data.pagi;
+                } else if (shift == 1) {
+                    count = &currentJadwal->data.siangCount;
+                    id = currentJadwal->data.siang;
+                } else if (shift == 2) {
+                    count = &currentJadwal->data.malamCount;
+                    id = currentJadwal->data.malam;
+                }
+
+                for (int i = 0; i < *count && i < 5; i++) {
+                    ListNode* dokter = findDokterById(dokterHead, id[i]);
+                    if (dokter != NULL) {
+                        kalender[arrayIndex].ArrayDokter[i][shift] = dokter->data;
+                        kalender[arrayIndex].kebutuhanDokter[shift]++;
+                    }
+                }
+            }
+
+            arrayIndex++;
+        }
+        currentJadwal = currentJadwal->next;
+        currentIndex++;
+    }
+
+    while (jadwalHead != NULL) {
+        JadwalNode* temp = jadwalHead;
+        jadwalHead = jadwalHead->next;
+        free(temp);
+    }
+
+    size = range;
 }
 
 char *formatScheduleToString(HariKalender calendar[], int size, ListNode* doctorHead) {

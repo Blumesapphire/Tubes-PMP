@@ -754,28 +754,14 @@ static void activate(GtkApplication *app, gpointer user_data) {
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), calendar_tab, calendar_tab_label);
     //
 
-    doctor_head = createDokterList(); 
+    doctor_head = createDokterList();
+    jadwalBentukArray(61, doctor_head, global_schedule); 
     update_doctor_list_display();
     initArray(&global_violation_array, 1);
     gtk_widget_show_all(window);
 }
 
 int main(int argc, char **argv) {
-    // --- Set DLL search path (FIXED: Use absolute path) ---
-    char exe_path[MAX_PATH];
-    char libs_path[MAX_PATH];
-    GetModuleFileNameA(NULL, exe_path, MAX_PATH);  // Get .exe path
-    char *last_slash = strrchr(exe_path, '\\');
-    if (last_slash) *last_slash = '\0';            // Remove .exe filename
-    snprintf(libs_path, sizeof(libs_path), "%s\\libs", exe_path);
-    SetDllDirectoryA(libs_path);                   // Now points to /path/to/app/libs
-
-    // --- Initialize GTK (with error checking) ---
-    if (!gtk_init_check(&argc, &argv)) {
-        g_printerr("Failed to initialize GTK. Check DLLs in %s\n", libs_path);
-        return 1;
-    }
-    
     GtkApplication *app;
     int status;
 

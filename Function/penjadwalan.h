@@ -33,6 +33,20 @@ typedef struct {
     size_t size;
 } dynamicArray;
 
+typedef struct {
+    char tanggal[11]; // Format dd/mm/yyyy
+    int pagi[5];     // Array untuk ID dokter shift pagi (maks 10)
+    int siang[5];    // Array untuk ID dokter shift siang
+    int malam[5];    // Array untuk ID dokter shift malam
+    int pagiCount;    // Jumlah ID di pagi
+    int siangCount;   // Jumlah ID di siang
+    int malamCount;   // Jumlah ID di malam
+} Jadwal;
+
+typedef struct JadwalNode {
+    Jadwal data;
+    struct JadwalNode* next;
+} JadwalNode;
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]);
 DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], HariKalender Jadwal[],int hariLewat,int currentShift);
@@ -42,7 +56,7 @@ int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari);
 void freeArray(dynamicArray *array);
 void insertArray(dynamicArray* array, DailyData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
-
+void jadwalBentukArray(int size, ListNode *dokterHead,HariKalender* kalender);
 
 char *formatScheduleToString(HariKalender calendar[], int size, ListNode* doctorHead);
 char *formatViolationsToString(dynamicArray *arrayViolation, HariKalender Jadwal[]);
