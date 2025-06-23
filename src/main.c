@@ -8,7 +8,7 @@
 ListNode *doctor_head = NULL;
 HariKalender global_schedule[61]; 
 dynamicArray global_violation_array;
-dynamicArray global_shift_array;
+
 int global_num_violations = 0;
 GtkTextView *doctor_display_text_view;
 GtkTextView *add_doctor_output_text_view;
@@ -202,42 +202,6 @@ static void on_calendarVio_day_selected(GtkCalendar *calendar, gpointer user_dat
     g_string_free(violation_text, TRUE);
 }
 
-void on_replace_doctor_clicked(GtkButton *button, gpointer user_data) {
-    struct {
-        gint old_doctor_id;
-        gint new_doctor_id;
-        guint day, month, year;
-    } *info = user_data;
-
-    // Locate and replace the violating doctor in global_schedule
-    for (int i = 0; i < 90; i++) {
-        if (global_schedule[i].dd == info->day &&
-            global_schedule[i].mm == info->month &&
-            global_schedule[i].yy == info->year) {
-            
-            for (int shift = 0; shift < 3; shift++) {
-                for (int j = 0; j < global_schedule[i].kebutuhanDokter[shift]; j++) {
-                    if (global_schedule[i].ArrayDokter[j][shift].id == info->old_doctor_id) {
-                        global_schedule[i].ArrayDokter[j][shift].id = info->new_doctor_id;
-
-                        // Save updated schedule to CSV
-                        char newLine[512];
-                        formatBarisJadwal(newLine, &global_schedule[i]); // see function in previous answer
-                        gantiBarisTanggalCSV("jadwal.csv", newLine, newLine);  // replace with real filename
-                        
-                        printf("Doctor ID %d replaced with %d on %02d/%02d/%04d shift %d\n",
-                            info->old_doctor_id, info->new_doctor_id, info->day, info->month, info->year, shift);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    printf("Doctor not found in schedule to replace.\n");
-}
-
-
 static void show_schedule_calendarVio(GtkButton *button, gpointer user_data) {
     calendarVio_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(calendarVio_window), "Schedule Calendar with Violations");
@@ -415,15 +379,13 @@ static void on_generate_schedule_button_clicked(GtkButton *button, gpointer user
     if (global_violation_array.array != NULL) {
         freeArray(&global_violation_array);
     }
-    if (global_shift_array.array != NULL) {
-        freeArray(&global_shift_array);
-    }
+
     initArray(&global_violation_array, 1);
-    initArray(&global_shift_array, 1);
+
     global_num_violations = 0;
 
 
-    buatJadwal(global_schedule, &global_num_violations, doctor_head, &global_violation_array, &global_shift_array);
+    buatJadwal(global_schedule, &global_num_violations, doctor_head, &global_violation_array);
 
     gchar *schedule_text = formatScheduleToString(global_schedule, 61, doctor_head);
     GtkTextBuffer *schedule_buffer = gtk_text_view_get_buffer(schedule_display_text_view);
@@ -497,6 +459,187 @@ static void on_save_schedule_button_clicked(GtkButton *button, gpointer user_dat
     output_message = g_strdup("Schedule saved to Data/jadwal.csv successfully.");
     gtk_text_buffer_set_text(buffer_output, output_message, -1);
     g_free(output_message);
+}
+
+// fungsi mengganti dokter yang sedang bertugas
+static void on_change_doctor_button_clicked(GtkButton *button, gpointer user_data) {
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+        "Change Doctor on Duty",
+        NULL,
+        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        (const gchar *)"OK", GTK_RESPONSE_OK,
+        (const gchar *)"Cancel", GTK_RESPONSE_CANCEL,
+        NULL);
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
+    gtk_container_add(GTK_CONTAINER(content_area), grid);
+
+    // Date entry
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Date (DD/MM/YYYY):"), 0, 0, 1, 1);
+    GtkWidget *date_entry = gtk_entry_new();
+    gtk_grid_attach(GTK_GRID(grid), date_entry, 1, 0, 2, 1);
+
+    // Shift dropdown
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Shift:"), 0, 1, 1, 1);
+    GtkWidget *shift_combo = gtk_combo_box_text_new();
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(shift_combo), "Pagi");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(shift_combo), "Siang");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(shift_combo), "Malam");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(shift_combo), 0);
+    gtk_grid_attach(GTK_GRID(grid), shift_combo, 1, 1, 2, 1);
+
+    // Current doctor dropdown (will be filled after date/shift selection)
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Current Doctor:"), 0, 2, 1, 1);
+    GtkWidget *current_doctor_combo = gtk_combo_box_text_new();
+    ListNode *cur = doctor_head;
+    while (cur) {
+        gchar buf[128];
+        g_snprintf(buf, sizeof(buf), "%s (ID: %d)", cur->data.nama, cur->data.id);
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(current_doctor_combo), NULL, buf);
+        cur = cur->next;
+    }
+    gtk_grid_attach(GTK_GRID(grid), current_doctor_combo, 1, 2, 2, 1);
+
+    // Replacement doctor dropdown (all registered doctors)
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Replacement Doctor:"), 0, 3, 1, 1);
+    GtkWidget *replacement_doctor_combo = gtk_combo_box_text_new();
+    // Fill with all doctors
+    cur = doctor_head;
+    while (cur) {
+        gchar buf[128];
+        g_snprintf(buf, sizeof(buf), "%s (ID: %d)", cur->data.nama, cur->data.id);
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(replacement_doctor_combo), NULL, buf);
+        cur = cur->next;
+    }
+    gtk_grid_attach(GTK_GRID(grid), replacement_doctor_combo, 1, 3, 2, 1);
+
+    gtk_widget_show_all(dialog);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        // Get date, shift, current doctor, replacement doctor
+        const gchar *date_str = gtk_entry_get_text(GTK_ENTRY(date_entry));
+        int dd, mm, yy;
+        if (sscanf(date_str, "%d/%d/%d", &dd, &mm, &yy) != 3) {
+            GtkWidget *err = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "Invalid date format.");
+            gtk_dialog_run(GTK_DIALOG(err));
+            gtk_widget_destroy(err);
+            gtk_widget_destroy(dialog);
+            return;
+        }
+        int shift_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(shift_combo));
+        int found_idx = -1;
+        for (int i = 0; i < 61; i++) {
+            if (global_schedule[i].dd == dd && global_schedule[i].mm == mm && global_schedule[i].yy == yy) {
+                found_idx = i;
+                break;
+            }
+        }
+        if (found_idx == -1) {
+            GtkWidget *err = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "Date not found in schedule.");
+            gtk_dialog_run(GTK_DIALOG(err));
+            gtk_widget_destroy(err);
+            gtk_widget_destroy(dialog);
+            return;
+        }
+        // Get current doctor index
+        int cur_doc_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(current_doctor_combo));
+        if (cur_doc_idx == -1) {
+            GtkWidget *err = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "Select Dokter yang ingin diganti.");
+            gtk_dialog_run(GTK_DIALOG(err));
+            gtk_widget_destroy(err);
+            gtk_widget_destroy(dialog);
+            return;
+        }
+        //get replacement doctor index
+        int rep_doc_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(replacement_doctor_combo));
+        if (rep_doc_idx == -1) {
+            GtkWidget *err = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "Select Dokter yang ingin menggantikan.");
+            gtk_dialog_run(GTK_DIALOG(err));
+            gtk_widget_destroy(err);
+            gtk_widget_destroy(dialog);
+            return;
+        }
+        // Get doctor IDs
+        int old_id = -1, new_id = -1;
+        // Find old doctor id
+        int count = 0;
+        ListNode *cur2 = doctor_head;
+        while (cur2) {
+            if (count == cur_doc_idx) {
+                old_id = cur2->data.id;
+                break;
+            }
+            cur2 = cur2->next;
+            count++;
+        }
+        // Find new doctor id
+        count = 0;
+        cur2 = doctor_head;
+        while (cur2) {
+            if (count == rep_doc_idx) {
+                new_id = cur2->data.id;
+                break;
+            }
+            cur2 = cur2->next;
+            count++;
+        }
+        if (old_id == -1 || new_id == -1) {
+            GtkWidget *err = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "Doctor selection error.");
+            gtk_dialog_run(GTK_DIALOG(err));
+            gtk_widget_destroy(err);
+            gtk_widget_destroy(dialog);
+            return;
+        }
+        ListNode *rep;
+        // Replace doctor in schedule
+        for (int j = 0; j < global_schedule[found_idx].kebutuhanDokter[shift_idx]; j++) {
+            if (global_schedule[found_idx].ArrayDokter[j][shift_idx].id == old_id) {
+                rep = findDokterById(doctor_head, new_id);
+                global_schedule[found_idx].ArrayDokter[j][shift_idx] = rep->data;
+                break;
+            }
+        }
+        int lokasiDokter = -1;
+        //remove from violation array
+        for (int i = 0; i < global_violation_array.used; i++) {
+            if (global_violation_array.array[i].dokter.id == old_id) {
+                lokasiDokter = i;
+                for (int j = 0; j < 90; j++) {
+                    if (global_violation_array.array[i].indexHari[0][j] == found_idx) {
+                        //remove from violation shift array
+                        for (int k = j; k < 89-j; k++) {
+                            global_violation_array.array[i].indexHari[0][k] = global_violation_array.array[i].indexHari[0][k + 1];
+                            global_violation_array.array[i].indexHari[1][k] = global_violation_array.array[i].indexHari[1][k + 1];
+                        }
+                        break;      
+                    }
+                }   
+                break;
+            }   
+        }
+        int flagRemove= 1;
+        //remove from violation shift array if empty
+        for (int i=0;i<90;i++){
+            if (global_violation_array.array[lokasiDokter].indexHari[0][i] != -1) {
+                flagRemove= 0; // still has violations
+                break;  
+            }
+        }
+        if (flagRemove) {
+            //remove from array
+            for (int i = lokasiDokter; i < global_violation_array.used - 1; i++) {
+                global_violation_array.array[i] = global_violation_array.array[i + 1];
+            }
+            global_violation_array.used--;
+        }
+
+        GtkWidget *info = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "Doctor replaced successfully.");
+        gtk_dialog_run(GTK_DIALOG(info));
+        gtk_widget_destroy(info);
+    }
+    gtk_widget_destroy(dialog);
 }
 
 static void activate(GtkApplication *app, gpointer user_data) {
@@ -584,6 +727,9 @@ static void activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *show_date_schedule_button = gtk_button_new_with_label("Show Date Schedule");
     g_signal_connect(show_date_schedule_button, "clicked", G_CALLBACK(on_show_schedule_by_date_button_clicked), NULL);
     gtk_box_pack_start(GTK_BOX(date_input_box), show_date_schedule_button, FALSE, FALSE, 0);
+    GtkWidget *change_doctor_button = gtk_button_new_with_label("Change Doctor on Duty");
+    g_signal_connect(change_doctor_button, "clicked", G_CALLBACK(on_change_doctor_button_clicked), NULL);
+    gtk_box_pack_start(GTK_BOX(schedule_vbox), change_doctor_button, FALSE, FALSE, 0);
     GtkWidget *schedule_label = gtk_label_new("Generated Schedule:");
     gtk_box_pack_start(GTK_BOX(schedule_vbox), schedule_label, FALSE, FALSE, 5);
     schedule_display_text_view = GTK_TEXT_VIEW(gtk_text_view_new());
@@ -611,7 +757,6 @@ static void activate(GtkApplication *app, gpointer user_data) {
     doctor_head = createDokterList(); 
     update_doctor_list_display();
     initArray(&global_violation_array, 1);
-    initArray(&global_shift_array, 1);
     gtk_widget_show_all(window);
 }
 
@@ -642,9 +787,7 @@ int main(int argc, char **argv) {
     if (global_violation_array.array != NULL) {
         freeArray(&global_violation_array);
     }
-    if (global_shift_array.array != NULL) {
-        freeArray(&global_shift_array);
-    }
+
     ListNode *current = doctor_head;
     while (current != NULL) {
         ListNode *next = current->next;
@@ -656,3 +799,5 @@ int main(int argc, char **argv) {
     }
     return status;
 }
+
+
