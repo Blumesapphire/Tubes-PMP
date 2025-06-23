@@ -96,15 +96,23 @@ DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], H
     return (tempMatch);
 }
 
-int findDoctorShift(int ID, HariKalender arrayJadwal[], int hariLewat){
-    for (int j = 0; j < 3; j++){ 
-        for (int k = 0; k < 5; k++){
-            if (arrayJadwal[hariLewat].ArrayDokter[k][j].id == ID){
-                return j;
-            }
-        }
+int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat){
+    int hariMingguLalu=0;
+    if (hariLewat > 7) {
+        hariMingguLalu = (hariLewat - 7);
     }
-    return -1; 
+    int count=0;
+
+    for (int i=(hariMingguLalu);i<hariLewat;i++){ // untuk setiap hari yang lewat
+        for (int j=0;j<3;j++){  //untuk setiap shift
+            for (int k=0;k<arrayJadwal[i].kebutuhanDokter[j];k++){ //untuk setiap dokter
+                if (arrayJadwal[i].ArrayDokter[k][j].id==ID){
+                    count+=1;
+                }
+            }
+        } 
+    }
+    return count;
 }
 
 void initArray(dynamicArray* array, size_t initialSize) {
@@ -510,4 +518,51 @@ void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) 
 
     fclose(file);
     printf("Jadwal berhasil ditambahkan ke file: %s\n", namaFile);
+}
+
+void gantiBarisTanggalCSV(const char *namaFile, const char *tanggalDicari, const char *barisBaru) {
+    FILE *file = fopen(namaFile, "r");
+    if (!file) {
+        perror("Gagal membuka file untuk membaca");
+        return;
+    }
+
+    char *lines[MAX_LINES];
+    int lineCount = 0;
+    char buffer[MAX_LINE_LENGTH];
+
+    while (fgets(buffer, sizeof(buffer), file) && lineCount < MAX_LINES) {
+        lines[lineCount] = strdup(buffer);
+        lineCount++;
+    }
+    fclose(file);
+
+    int ditemukan = 0;
+    for (int i = 1; i < lineCount; i++) { // i=1 to skip header
+        if (strncmp(lines[i], tanggalDicari, strlen(tanggalDicari)) == 0 && lines[i][strlen(tanggalDicari)] == ',') {
+            free(lines[i]);
+            lines[i] = malloc(strlen(barisBaru) + 2); // +2 for \n and \0
+            sprintf(lines[i], "%s\n", barisBaru);
+            ditemukan = 1;
+            break;
+        }
+    }
+
+    if (!ditemukan) {
+        printf("Tanggal %s tidak ditemukan di file.\n", tanggalDicari);
+        return;
+    }
+
+    file = fopen(namaFile, "w");
+    if (!file) {
+        perror("Gagal membuka file untuk menulis");
+        return;
+    }
+
+    for (int i = 0; i < lineCount; i++) {
+        fputs(lines[i], file);
+        free(lines[i]);
+    }
+    fclose(file);
+    printf("Baris untuk tanggal %s berhasil diperbarui.\n", tanggalDicari);
 }

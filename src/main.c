@@ -84,15 +84,6 @@ GtkWidget* create_calendar_tab(void) {
     return box;
 }
 
-
-const gchar* get_violation_reason(DailyData *violation) {
-    // Customize this based on your violation tracking system
-    if (violation->total > 1) {
-        return "Multiple violations";
-    }
-    return "Schedule preference violation";
-}
-
 gboolean doctor_has_violation_on_date(int doctor_id, int day, int month, int year) {
     for (int i = 0; i < global_violation_array.used; i++) {
         if (global_violation_array.array[i].dokter.id == doctor_id) {
@@ -175,7 +166,7 @@ static void on_calendarVio_day_selected(GtkCalendar *calendar, gpointer user_dat
     
     guint year, month, day;
     gtk_calendar_get_date(calendar, &year, &month, &day);
-    month += 1; // GTK months are 0-11
+    month += 1; // months dari 0-11
     
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
     GString *violation_text = g_string_new(NULL);
@@ -194,9 +185,9 @@ static void on_calendarVio_day_selected(GtkCalendar *calendar, gpointer user_dat
                     global_schedule[day_idx].yy == year) {
                     int shift_idx = global_violation_array.array[i].indexHari[1][j];
                     g_string_append_printf(violation_text,
-                        "• %s shift: %s\n",
+                        "- %s shift: %s\n",
                         global_schedule[day_idx].shift[shift_idx],
-                        get_violation_reason(&global_violation_array.array[i]));
+                        "Pelanggaran Shift");
                     found_violations++;
                 }
             }
@@ -210,6 +201,43 @@ static void on_calendarVio_day_selected(GtkCalendar *calendar, gpointer user_dat
     gtk_text_buffer_set_text(buffer, violation_text->str, -1);
     g_string_free(violation_text, TRUE);
 }
+
+void on_replace_doctor_clicked(GtkButton *button, gpointer user_data) {
+    struct {
+        gint old_doctor_id;
+        gint new_doctor_id;
+        guint day, month, year;
+    } *info = user_data;
+
+    // Locate and replace the violating doctor in global_schedule
+    for (int i = 0; i < 90; i++) {
+        if (global_schedule[i].dd == info->day &&
+            global_schedule[i].mm == info->month &&
+            global_schedule[i].yy == info->year) {
+            
+            for (int shift = 0; shift < 3; shift++) {
+                for (int j = 0; j < global_schedule[i].kebutuhanDokter[shift]; j++) {
+                    if (global_schedule[i].ArrayDokter[j][shift].id == info->old_doctor_id) {
+                        global_schedule[i].ArrayDokter[j][shift].id = info->new_doctor_id;
+
+                        // Save updated schedule to CSV
+                        char newLine[512];
+                        formatBarisJadwal(newLine, &global_schedule[i]); // see function in previous answer
+                        gantiBarisTanggalCSV("jadwal.csv", newLine, newLine);  // replace with real filename
+                        
+                        printf("Doctor ID %d replaced with %d on %02d/%02d/%04d shift %d\n",
+                            info->old_doctor_id, info->new_doctor_id, info->day, info->month, info->year, shift);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    printf("Doctor not found in schedule to replace.\n");
+}
+
+
 static void show_schedule_calendarVio(GtkButton *button, gpointer user_data) {
     calendarVio_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(calendarVio_window), "Schedule Calendar with Violations");
@@ -252,8 +280,6 @@ static void show_schedule_calendarVio(GtkButton *button, gpointer user_data) {
     
     gtk_widget_show_all(calendarVio_window);
 }
-
-
 
 void update_doctor_list_display() {
     gchar *doctors_text = formatDoktersToString(doctor_head);
@@ -460,14 +486,14 @@ static void on_save_schedule_button_clicked(GtkButton *button, gpointer user_dat
     gchar *output_message;
     GtkTextBuffer *buffer_output = gtk_text_view_get_buffer(shift_violation_display_text_view);
 
-    if (global_schedule[0].dd == 0) {
+    if (global_schedule[31].dd == 0) {
         output_message = g_strdup("Error: Please generate a schedule first before saving.");
         gtk_text_buffer_set_text(buffer_output, output_message, -1);
         g_free(output_message);
         return;
     }
 
-    simpanJadwalKeCSV(global_schedule, 30, "Data/jadwal.csv");
+    simpanJadwalKeCSV(global_schedule, 61, "Data/jadwal.csv");
     output_message = g_strdup("Schedule saved to Data/jadwal.csv successfully.");
     gtk_text_buffer_set_text(buffer_output, output_message, -1);
     g_free(output_message);

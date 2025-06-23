@@ -46,6 +46,7 @@ char *formatScheduleToString(HariKalender calendar[], int size, ListNode* doctor
 char *formatViolationsToString(dynamicArray *arrayViolation, HariKalender Jadwal[]);
 char *formatSingleDayScheduleToString(HariKalender *daySchedule); 
 void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile);
+void gantiBarisTanggalCSV(const char *namaFile, const char *tanggalDicari, const char *barisBaru);
 extern HariKalender global_schedule[61];
 extern dynamicArray global_violation_array;
 extern dynamicArray global_shift_array;
