@@ -5,6 +5,7 @@
 #include <time.h>
 #include <math.h>
 #include <sys/stat.h>
+
 typedef struct DoctorViolation {
     Dokter doctor;
     int violations;
@@ -36,20 +37,20 @@ typedef struct {
 int isPrefered(int size,char stringComp[],char arrayPref[][10]);
 DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], HariKalender Jadwal[],int hariLewat,int currentShift);
 int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat);
-void buatJadwal(HariKalender calendar[61],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray);
+void buatJadwal(HariKalender calendar[61],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray);
 int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari); 
 void freeArray(dynamicArray *array);
 void insertArray(dynamicArray* array, DailyData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
 
+
 char *formatScheduleToString(HariKalender calendar[], int size, ListNode* doctorHead);
 char *formatViolationsToString(dynamicArray *arrayViolation, HariKalender Jadwal[]);
 char *formatSingleDayScheduleToString(HariKalender *daySchedule); 
 void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile);
-void gantiBarisTanggalCSV(const char *namaFile, const char *tanggalDicari, const char *barisBaru);
+
 extern HariKalender global_schedule[61];
 extern dynamicArray global_violation_array;
-extern dynamicArray global_shift_array;
 extern int global_num_violations;
 
 

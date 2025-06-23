@@ -140,7 +140,7 @@ void freeArray(dynamicArray *array){
     array->size = 0;
 }
 
-void buatJadwal(HariKalender calendar[61], int* numViolations, ListNode* daftarDokter, dynamicArray* violationArray, dynamicArray* shiftArray) {
+void buatJadwal(HariKalender calendar[61], int* numViolations, ListNode* daftarDokter, dynamicArray* violationArray) {
     time_t now;
     time(&now);
     struct tm *current = localtime(&now);
@@ -185,29 +185,6 @@ void buatJadwal(HariKalender calendar[61], int* numViolations, ListNode* daftarD
         for (int j = 0; j < 3; j++) {
             DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1, j);
             if (cari.violations != 999) {
-                DailyData doctorShift;
-                doctorShift.dokter = cari.doctor;
-                doctorShift.total = 1;
-                for (int l = 0; l < 90; l++) {
-                    doctorShift.indexHari[0][l] = -1;
-                    doctorShift.indexHari[1][l] = -1;
-                }
-                doctorShift.indexHari[0][0] = i;
-                doctorShift.indexHari[1][0] = j;
-
-                int tempIndex = findUniqueViolation(shiftArray->array, shiftArray->used, cari.doctor);
-                if (tempIndex == -1) {
-                    insertArray(shiftArray, doctorShift);
-                } else {
-                    int k = 0;
-                    while (k < 90 && shiftArray->array[tempIndex].indexHari[0][k] != -1) k++;
-                    if (k < 90) {
-                        shiftArray->array[tempIndex].indexHari[0][k] = i;
-                        shiftArray->array[tempIndex].indexHari[1][k] = j;
-                    }
-                    shiftArray->array[tempIndex].total++;
-                }
-
                 calendar[i].ArrayDokter[0][j] = cari.doctor;
 
                 if (cari.violations != 0) {
@@ -247,29 +224,6 @@ void buatJadwal(HariKalender calendar[61], int* numViolations, ListNode* daftarD
             for (int k = 1; k < calendar[i].kebutuhanDokter[j]; k++) {
                 DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1, j);
                 if (cari.violations != 999) {
-                    DailyData doctorShift;
-                    doctorShift.dokter = cari.doctor;
-                    doctorShift.total = 1;
-                    for (int l = 0; l < 90; l++) {
-                        doctorShift.indexHari[0][l] = -1;
-                        doctorShift.indexHari[1][l] = -1;
-                    }
-                    doctorShift.indexHari[0][0] = i;
-                    doctorShift.indexHari[1][0] = j;
-
-                    int tempIndex = findUniqueViolation(shiftArray->array, shiftArray->used, cari.doctor);
-                    if (tempIndex == -1) {
-                        insertArray(shiftArray, doctorShift);
-                    } else {
-                        int m = 0;
-                        while (m < 90 && shiftArray->array[tempIndex].indexHari[0][m] != -1) m++;
-                        if (m < 90) {
-                            shiftArray->array[tempIndex].indexHari[0][m] = i;
-                            shiftArray->array[tempIndex].indexHari[1][m] = j;
-                        }
-                        shiftArray->array[tempIndex].total++;
-                    }
-
                     calendar[i].ArrayDokter[k][j] = cari.doctor;
 
                     if (cari.violations != 0) {
@@ -390,69 +344,7 @@ char *formatViolationsToString(dynamicArray *arrayViolation, HariKalender Jadwal
             g_string_append(buffer, "\n");
         }
     }
-    
-    g_string_append(buffer, "\n--- Doctor Shift Totals ---\n\n");
-    extern dynamicArray global_shift_array; 
-    if (global_shift_array.used == 0) {
-        g_string_append(buffer, "No shifts assigned yet or no doctors registered.\n");
-    } else {
-        for (size_t i = 0; i < global_shift_array.used; i++) {
-            DailyData *ds = &(global_shift_array.array[i]);
-            g_string_append_printf(buffer, "  Doctor: %s (ID: %d)\n", ds->dokter.nama, ds->dokter.id);
-            g_string_append_printf(buffer, "    Total Shifts Assigned: %d\n", ds->total);
-            g_string_append(buffer, "    Assigned Shifts:\n");
-            
-            int shifts_this_week = 0;
-            int current_week_start_day_idx = 0;
-            typedef struct {
-                int day_idx;
-                int shift_idx;
-            } ShiftDetail;
-
-            ShiftDetail temp_shift_details[90];
-            int num_shifts_to_display = 0;
-            for (int j = 0; j < 90; j++) {
-                if (ds->indexHari[0][j] != -1 && ds->indexHari[1][j] != -1) {
-                    temp_shift_details[num_shifts_to_display].day_idx = ds->indexHari[0][j];
-                    temp_shift_details[num_shifts_to_display].shift_idx = ds->indexHari[1][j];
-                    num_shifts_to_display++;
-                }
-            }
-            for (int x = 0; x < num_shifts_to_display - 1; x++) {
-                for (int y = 0; y < num_shifts_to_display - x - 1; y++) {
-                    if (temp_shift_details[y].day_idx > temp_shift_details[y+1].day_idx) {
-                        ShiftDetail temp_detail = temp_shift_details[y];
-                        temp_shift_details[y] = temp_shift_details[y+1];
-                        temp_shift_details[y+1] = temp_detail;
-                    }
-                }
-            }
-
-
-            for (int j = 0; j < num_shifts_to_display; j++) {
-                int day_idx = temp_shift_details[j].day_idx;
-                int shift_idx = temp_shift_details[j].shift_idx;
-
-                if (day_idx != -1 && shift_idx != -1) {
-                    if (j > 0 && (day_idx / 7) > (current_week_start_day_idx / 7)) { 
-                         g_string_append_printf(buffer, "  -- Shifts in Week %d: %d --\n", (current_week_start_day_idx / 7) + 1, shifts_this_week);
-                         current_week_start_day_idx = (day_idx / 7) * 7;
-                         shifts_this_week = 0;
-                    }
-
-                    g_string_append_printf(buffer, "  - %02d/%02d/%04d (%s) - %s\n",
-                                           Jadwal[day_idx].dd, Jadwal[day_idx].mm, Jadwal[day_idx].yy,
-                                           Jadwal[day_idx].namaHari, shifts_names[shift_idx]);
-                    shifts_this_week++;
-                }
-            }
-            if (num_shifts_to_display > 0 || ds->total == 0) {
-                g_string_append_printf(buffer, "  -- Shifts in Week %d: %d --\n", (current_week_start_day_idx / 7) + 1, shifts_this_week);
-            }
-            g_string_append(buffer, "\n");
-        }
-    }
-    
+      
     return g_string_free(buffer, FALSE);
 }
 
@@ -475,28 +367,21 @@ int tanggalSudahAda(const char* namaFile, const char* tanggal) {
 void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) {
     FILE *file;
     struct stat st;
-    int fileKosong = (stat(namaFile, &st) != 0 || st.st_size == 0);
 
-    file = fopen(namaFile, "a");
+    file = fopen(namaFile, "w");
     if (!file) {
         perror("Gagal membuka file CSV");
         return;
     }
 
-    // Tulis header jika file kosong
-    if (fileKosong) {
-        fprintf(file, "Tanggal,Pagi,Siang,Malam\n");
-    }
-
+    fprintf(file, "Tanggal,Pagi,Siang,Malam\n");
+    
     for (int i = 0; i < size; i++) {
         char tanggal[20];
         snprintf(tanggal, sizeof(tanggal), "%02d/%02d/%04d", calendar[i].dd, calendar[i].mm, calendar[i].yy);
 
-        if (tanggalSudahAda(namaFile, tanggal)) {
-            continue;
-        }
-
         fprintf(file, "%s", tanggal); //tulis tanggal
+
         for (int shift = 0; shift < 3; shift++) { //tulis pagi siang malam
             fprintf(file, ",");
             int kosong = 1;
@@ -518,51 +403,4 @@ void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) 
 
     fclose(file);
     printf("Jadwal berhasil ditambahkan ke file: %s\n", namaFile);
-}
-
-void gantiBarisTanggalCSV(const char *namaFile, const char *tanggalDicari, const char *barisBaru) {
-    FILE *file = fopen(namaFile, "r");
-    if (!file) {
-        perror("Gagal membuka file untuk membaca");
-        return;
-    }
-
-    char *lines[MAX_LINES];
-    int lineCount = 0;
-    char buffer[MAX_LINE_LENGTH];
-
-    while (fgets(buffer, sizeof(buffer), file) && lineCount < MAX_LINES) {
-        lines[lineCount] = strdup(buffer);
-        lineCount++;
-    }
-    fclose(file);
-
-    int ditemukan = 0;
-    for (int i = 1; i < lineCount; i++) { // i=1 to skip header
-        if (strncmp(lines[i], tanggalDicari, strlen(tanggalDicari)) == 0 && lines[i][strlen(tanggalDicari)] == ',') {
-            free(lines[i]);
-            lines[i] = malloc(strlen(barisBaru) + 2); // +2 for \n and \0
-            sprintf(lines[i], "%s\n", barisBaru);
-            ditemukan = 1;
-            break;
-        }
-    }
-
-    if (!ditemukan) {
-        printf("Tanggal %s tidak ditemukan di file.\n", tanggalDicari);
-        return;
-    }
-
-    file = fopen(namaFile, "w");
-    if (!file) {
-        perror("Gagal membuka file untuk menulis");
-        return;
-    }
-
-    for (int i = 0; i < lineCount; i++) {
-        fputs(lines[i], file);
-        free(lines[i]);
-    }
-    fclose(file);
-    printf("Baris untuk tanggal %s berhasil diperbarui.\n", tanggalDicari);
 }
