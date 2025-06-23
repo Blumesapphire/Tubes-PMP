@@ -19,3 +19,4 @@ Id,Nama,MaxShift,Hari,Shift
 18,Monica Halim,1,Rabu,Pagi
 19,Bimo Nugroho,4,Selasa;Kamis;Jumat,Siang;Malam
 20,Ayu Ramadhani,3,Senin;Rabu;Jumat,Pagi;Siang
+23,John,5,Senin;Selasa;Rabu;Kamis;Jumat;Sabtu;Minggu,Pagi;Siang;Malam

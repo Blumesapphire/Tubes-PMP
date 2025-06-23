@@ -2,16 +2,31 @@
   "configurations": [
     {
       "name": "windows-cygwin-gcc-x64",
+      "compilerPath": "C:/cygwin64/bin/gcc.exe",
+      "intelliSenseMode": "linux-gcc-x64",
       "includePath": [
         "${workspaceFolder}/**"
       ],
-      "compilerPath": "C:/cygwin64/bin/gcc.exe",
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE",
+        "GTK_ENABLE_BROKEN",
+        "GDK_PIXBUF_DISABLE_DEPRECATED"
+      ],
       "cStandard": "${default}",
       "cppStandard": "${default}",
-      "intelliSenseMode": "linux-gcc-x64",
-      "compilerArgs": [
-        ""
-      ]
+      "compilerArgs": [],
+      "browse": {
+        "path": [
+          "${workspaceFolder}",
+          "C:/msys64/ucrt64/include",
+          "C:/msys64/ucrt64/include/gtk-3.0",
+          "C:/msys64/ucrt64/lib/glib-2.0/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+      }
     }
   ],
   "version": 4

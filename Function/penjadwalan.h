@@ -1,8 +1,10 @@
+#ifndef PENJADWALAN_H
+#define PENJADWALAN_H
+
 #include "dokter.h"
 #include <time.h>
 #include <math.h>
 #include <sys/stat.h>
-
 typedef struct DoctorViolation {
     Dokter doctor;
     int violations;
@@ -13,15 +15,15 @@ typedef struct {
     int mm;
     int yy;
     char namaHari[10];
-    char shift[3][10]; // shift [slot shift][nama shift (Pagi,siang/malam)]
+    char shift[3][10];
     int kebutuhanDokter[3]; // [nDokter][pagi/siang/malam]
-    Dokter ArrayDokter[5][3]; //Dokter [N dokter][lokasi shift]Per Shift ada maksimum 5 dokter mengisi shift
+    Dokter ArrayDokter[5][3]; //Dokter [N dokter][lokasi shift]Per Shift  maksimum 5 dokter mengisi shift
 } HariKalender;
 
 typedef struct {
     Dokter dokter; //data dokter
     int total; //jumlah total violation/shift
-    int indexHari[2][31];//lokasi di array kalender dimana violation/shift terjadi [hari][shift]
+    int indexHari[2][90];//lokasi di array kalender dimana violation/shift terjadi [hari][shift] - Increased size to 90
 } DailyData;
 
 typedef struct {
@@ -30,50 +32,24 @@ typedef struct {
     size_t size;
 } dynamicArray;
 
-// typedef struct {
-//     int id;
-//     char nama[50];
-//     int maxShift;
-//     char hari[7][10]; // Array to hold up to 7 days
-//     char shift[3][10]; // Array to hold up to 3 shifts (Pagi, Siang, Malam)
-// } Dokter2;
-
-// typedef struct ListNode {
-//     Dokter data;
-//     struct ListNode* next;
-// } ListNode;
-
-typedef struct {
-    char tanggal[11]; // Format dd/mm/yyyy
-    int pagi[5];     // Array untuk ID dokter shift pagi (maks 10)
-    int siang[5];    // Array untuk ID dokter shift siang
-    int malam[5];    // Array untuk ID dokter shift malam
-    int pagiCount;    // Jumlah ID di pagi
-    int siangCount;   // Jumlah ID di siang
-    int malamCount;   // Jumlah ID di malam
-} Jadwal;
-
-typedef struct JadwalNode {
-    Jadwal data;
-    struct JadwalNode* next;
-} JadwalNode;
-
-ListNode* createDokterList();
-JadwalNode* createJadwalList();
-ListNode* findDokterById(ListNode* head, int id);
-void displaySchedule(ListNode* dokterHead, JadwalNode* jadwalHead);
-void displayDoctorsByDate(ListNode *dokterHead, JadwalNode* jadwalHead);
 
 int isPrefered(int size,char stringComp[],char arrayPref[][10]);
 DoctorViolation assignDokter(ListNode* daftarDokter,char hari[], char shift[], HariKalender Jadwal[],int hariLewat,int currentShift);
 int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat);
-void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray);
-void printJadwal(HariKalender calendar[], int size);
-int findUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari); //Mencari dicari di ArrayVio dengan size sizeArray , mengembalikan -1 bila tidak ditemukan
+void buatJadwal(HariKalender calendar[61],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray);
+int checkUniqueViolation(DailyData ArrayVio[],int sizeArray,Dokter dicari); 
 void freeArray(dynamicArray *array);
 void insertArray(dynamicArray* array, DailyData element);
 void initArray(dynamicArray* array, size_t ukuranArray);
-void printPelanggaran(dynamicArray arrayViolation, HariKalender Jadwal[]);
-void printShift(dynamicArray arrayViolation, HariKalender Jadwal[]);
-int tanggalSudahAda(const char* namaFile, const char* tanggal);
+
+char *formatScheduleToString(HariKalender calendar[], int size, ListNode* doctorHead);
+char *formatViolationsToString(dynamicArray *arrayViolation, HariKalender Jadwal[]);
+char *formatSingleDayScheduleToString(HariKalender *daySchedule); 
 void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile);
+extern HariKalender global_schedule[61];
+extern dynamicArray global_violation_array;
+extern dynamicArray global_shift_array;
+extern int global_num_violations;
+
+
+#endif 

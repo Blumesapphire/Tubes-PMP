@@ -57,6 +57,26 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "string.h": "c"
+    "string.h": "c",
+    "penjadwalan.h": "c",
+    "dokter.h": "c",
+    "text_encoding": "c",
+    "thread": "c",
+    "cstdlib": "c",
+    "source_location": "c",
+    "stacktrace": "c",
+    "array": "c",
+    "bitset": "c",
+    "string_view": "c",
+    "flat_map": "c",
+    "flat_set": "c",
+    "format": "c",
+    "initializer_list": "c",
+    "ranges": "c",
+    "span": "c",
+    "regex": "c",
+    "typeindex": "c",
+    "typeinfo": "c",
+    "chrono": "c"
   }
 }

@@ -3,12 +3,13 @@ Tugas Besar Pemecahan Masalah dengan Pemrograman
 Kelompok 2
 
 # Petunjuk Compile
-run command di dalam directory :
+run command di dalam msys2 mingw64 command prompt. Pastikan Gtk-3.0 sudah terinstall :
 
-gcc src/main.c Function/dokter.c Function/penjadwalan.c -IFunction -IData -o build/Debug/outDebug
+pertama,
+cd "rute ke folder"
 
-lalu, untuk menjalankan program:
+kedua,
+gcc -o tubes src/main.c Function/dokter.c Function/pengelolaan_data_dokter.c Function/penjadwalan.c -I Function $(pkg-config --cflags --libs gtk+-3.0) -lm
 
-Untuk Windows: build\Debug\outDebug.exe
-
-Untuk macOS/Linux: ./build/Debug/outDebug
+ketiga.
+./tubes
