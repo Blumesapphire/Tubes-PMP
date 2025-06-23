@@ -88,7 +88,7 @@ int findDoctorShift(int ID,HariKalender arrayJadwal[],int hariLewat){
     return count;
 }
 
-void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray) {
+void buatJadwal(HariKalender kalender[31],int* numViolations,ListNode* daftarDokter,dynamicArray* violationArray, dynamicArray* shiftArray) {
     time_t now;
     time(&now);
     struct tm *current = localtime(&now);
@@ -98,30 +98,30 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
     mktime(current);
     
     for (int i = 0; i < 31; i++) {
-        calendar[i].dd = current->tm_mday;
-        calendar[i].mm = current->tm_mon + 1; // time h mulai 0-11
-        calendar[i].yy = current->tm_year + 1900; // time.h mulai dai 1900
+        kalender[i].dd = current->tm_mday;
+        kalender[i].mm = current->tm_mon + 1; // time h mulai 0-11
+        kalender[i].yy = current->tm_year + 1900; // time.h mulai dai 1900
         
         switch(current->tm_wday) {
-            case 0: strncpy(calendar[i].namaHari, "Minggu", 10); break;
-            case 1: strncpy(calendar[i].namaHari, "Senin", 10); break;
-            case 2: strncpy(calendar[i].namaHari, "Selasa", 10); break;
-            case 3: strncpy(calendar[i].namaHari, "Rabu", 10); break;
-            case 4: strncpy(calendar[i].namaHari, "Kamis", 10); break;
-            case 5: strncpy(calendar[i].namaHari, "Jumat", 10); break;
-            case 6: strncpy(calendar[i].namaHari, "Sabtu", 10); break;
+            case 0: strncpy(kalender[i].namaHari, "Minggu", 10); break;
+            case 1: strncpy(kalender[i].namaHari, "Senin", 10); break;
+            case 2: strncpy(kalender[i].namaHari, "Selasa", 10); break;
+            case 3: strncpy(kalender[i].namaHari, "Rabu", 10); break;
+            case 4: strncpy(kalender[i].namaHari, "Kamis", 10); break;
+            case 5: strncpy(kalender[i].namaHari, "Jumat", 10); break;
+            case 6: strncpy(kalender[i].namaHari, "Sabtu", 10); break;
         }
 
-        strncpy(calendar[i].shift[0], "Pagi", 10);
-        strncpy(calendar[i].shift[1], "Siang", 10);
-        strncpy(calendar[i].shift[2], "Malam", 10);
+        strncpy(kalender[i].shift[0], "Pagi", 10);
+        strncpy(kalender[i].shift[1], "Siang", 10);
+        strncpy(kalender[i].shift[2], "Malam", 10);
 
-        calendar[i].kebutuhanDokter[0]=2; //kebutuhan pagi
-        calendar[i].kebutuhanDokter[1]=3; //siang
-        calendar[i].kebutuhanDokter[2]=1; //malam
+        kalender[i].kebutuhanDokter[0]=2; //kebutuhan pagi
+        kalender[i].kebutuhanDokter[1]=3; //siang
+        kalender[i].kebutuhanDokter[2]=1; //malam
 
         for (int j = 0; j < 3; j++) {//untuk setiap shift
-            DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1,j);
+            DoctorViolation cari = assignDokter(daftarDokter, kalender[i].namaHari, kalender[i].shift[j], kalender, i+1,j);
             if (cari.violations!=999) {
                 DailyData doctorShift;
                 doctorShift.dokter = cari.doctor;
@@ -141,7 +141,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                     shiftArray->array[tempIndex].indexHari[1][shiftArray->array[tempIndex].total]=j;
                     shiftArray->array[tempIndex].total+=1;
                 }
-                calendar[i].ArrayDokter[0][j] = cari.doctor;
+                kalender[i].ArrayDokter[0][j] = cari.doctor;
                 if (cari.violations!=0){
                     DailyData pelanggaran;
                     pelanggaran.dokter=cari.doctor;
@@ -165,7 +165,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                 }
             } else {
                 // Handling kasus tidak ada dokter
-                calendar[i].ArrayDokter[0][j].id = -1; // tanda ID tidak assigned
+                kalender[i].ArrayDokter[0][j].id = -1; // tanda ID tidak assigned
             }
         }
         //iterasi ke hari selanjutnya
@@ -174,8 +174,8 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
     }
     for (int i = 0; i < 31; i++) {
         for (int j = 0; j < 3; j++) {//untuk setiap shift
-            for (int k=1;k<calendar[i].kebutuhanDokter[j];k++){//untuk setiap kebutuhan dokter pada shift
-                DoctorViolation cari = assignDokter(daftarDokter, calendar[i].namaHari, calendar[i].shift[j], calendar, i+1,j);
+            for (int k=1;k<kalender[i].kebutuhanDokter[j];k++){//untuk setiap kebutuhan dokter pada shift
+                DoctorViolation cari = assignDokter(daftarDokter, kalender[i].namaHari, kalender[i].shift[j], kalender, i+1,j);
                 if (cari.violations!=999) {
                     DailyData doctorShift;
                     doctorShift.dokter = cari.doctor;
@@ -195,7 +195,7 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                         shiftArray->array[tempIndex].indexHari[1][shiftArray->array[tempIndex].total]=j;
                         shiftArray->array[tempIndex].total+=1;
                     }
-                    calendar[i].ArrayDokter[k][j] = cari.doctor;
+                    kalender[i].ArrayDokter[k][j] = cari.doctor;
                     if (cari.violations!=0){
                         DailyData pelanggaran;
                         pelanggaran.dokter=cari.doctor;
@@ -219,27 +219,27 @@ void buatJadwal(HariKalender calendar[31],int* numViolations,ListNode* daftarDok
                     }
                 } else {
                     // Handling kasus tidak ada dokter
-                    calendar[i].ArrayDokter[k][j].id = -1; // tanda ID tidak assigned
+                    kalender[i].ArrayDokter[k][j].id = -1; // tanda ID tidak assigned
                 }
             }
         }
     }        
 }
 
-void printJadwal(HariKalender calendar[], int size) {
+void printJadwal(HariKalender kalender[], int size) {
     int hariTidakTerisi=0;
     for (int i = 0; i < size; i++) {
         printf("\nHari: %s (%d/%d/%d)\n", 
-               calendar[i].namaHari, 
-               calendar[i].dd, 
-               calendar[i].mm, 
-               calendar[i].yy);
+               kalender[i].namaHari, 
+               kalender[i].dd, 
+               kalender[i].mm, 
+               kalender[i].yy);
         
         for (int j = 0; j < 3; j++) {
-            printf("  Shift: %s\n", calendar[i].shift[j]);
-            for (int k = 0; k<calendar[i].kebutuhanDokter[j];k++){
-                if (calendar[i].ArrayDokter[k][j].id!=-1){
-                    printf("  Nama Dokter: %s\n", calendar[i].ArrayDokter[k][j].nama);
+            printf("  Shift: %s\n", kalender[i].shift[j]);
+            for (int k = 0; k<kalender[i].kebutuhanDokter[j];k++){
+                if (kalender[i].ArrayDokter[k][j].id!=-1){
+                    printf("  Nama Dokter: %s\n", kalender[i].ArrayDokter[k][j].nama);
                 }
                 else {
                     hariTidakTerisi+=1;
@@ -337,7 +337,7 @@ int tanggalSudahAda(const char* namaFile, const char* tanggal) {
     return 0;
 }
 
-void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) {
+void simpanJadwalKeCSV(HariKalender kalender[], int size, const char* namaFile) {
     FILE *file;
     struct stat st;
     int fileKosong = (stat(namaFile, &st) != 0 || st.st_size == 0);
@@ -355,7 +355,7 @@ void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) 
 
     for (int i = 0; i < size; i++) {
         char tanggal[20];
-        snprintf(tanggal, sizeof(tanggal), "%02d/%02d/%04d", calendar[i].dd, calendar[i].mm, calendar[i].yy);
+        snprintf(tanggal, sizeof(tanggal), "%02d/%02d/%04d", kalender[i].dd, kalender[i].mm, kalender[i].yy);
 
         if (tanggalSudahAda(namaFile, tanggal)) {
             continue;
@@ -365,8 +365,8 @@ void simpanJadwalKeCSV(HariKalender calendar[], int size, const char* namaFile) 
         for (int shift = 0; shift < 3; shift++) { //tulis pagi siang malam
             fprintf(file, ",");
             int kosong = 1;
-            for (int k = 0; k < calendar[i].kebutuhanDokter[shift]; k++) {
-                int id = calendar[i].ArrayDokter[k][shift].id;
+            for (int k = 0; k < kalender[i].kebutuhanDokter[shift]; k++) {
+                int id = kalender[i].ArrayDokter[k][shift].id;
                 if (id != -1) {
                     if (!kosong) fprintf(file, ";");
                     fprintf(file, "%d", id);
@@ -601,4 +601,125 @@ void displayDoctorsByDate(ListNode *dokterHead, JadwalNode *jadwalHead) {
             }
         }
     }
+}
+
+HariKalender* jadwalBentukArray(int *size, ListNode *dokterHead) {
+    JadwalNode* jadwalHead = createJadwalList();
+    if (jadwalHead == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
+    int totalDays = countJadwalNodes(jadwalHead);
+    if (totalDays == 0) {
+        *size = 0;
+        return NULL;
+    }
+
+    // ngambil data untuk sekarang (real time)
+    time_t t = time(NULL);
+    struct tm* currentTime = localtime(&t);
+    int currentDay = currentTime->tm_mday;
+    int currentMonth = currentTime->tm_mon + 1;
+    int currentYear = currentTime->tm_year + 1900;
+    char currentDate[11];
+
+    sprintf(currentDate, "%02d/%02d/%04d", currentDay, currentMonth, currentYear);
+
+    // program ini menampilkan: 
+    // 10 hari sebelum
+    // sekarang
+    // 10 hari dari sekarang
+    // Nyari posisi (indeks) tanggal saat ini agar bisa menampilkan harapan output program
+    JadwalNode* currentJadwal = jadwalHead;
+    int currentIndex = 0;
+    int currentPosition = -1;
+    while (currentJadwal != NULL) {
+        if (strcmp(currentJadwal->data.tanggal, currentDate) == 0) {
+            currentPosition = currentIndex;
+            break;
+        }
+        currentJadwal = currentJadwal->next;
+        currentIndex++;
+    }
+
+    int startIndex, endIndex;
+    if (currentPosition == -1 || currentPosition < 30) {
+        startIndex = 0;
+    } else {
+        startIndex = currentPosition - 30;
+    }
+
+    if (currentPosition == -1) {
+        endIndex = totalDays - 1;
+    } else {
+        if (currentPosition + 30 < totalDays) {
+            endIndex = currentPosition + 30;
+        } else {
+            endIndex = totalDays - 1;
+        }
+    }
+
+    int range = endIndex - startIndex + 1;
+
+    HariKalender* kalender = (HariKalender*)malloc(range * sizeof(HariKalender));
+    if (kalender == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
+    currentJadwal = jadwalHead;
+    currentIndex = 0;
+    int arrayIndex = 0;
+
+    while (currentJadwal != NULL && arrayIndex < range) {
+        if (currentIndex >= startIndex && currentIndex <= endIndex) {
+
+            sscanf(currentJadwal->data.tanggal, "%d/%d/%d", &kalender[arrayIndex].dd, &kalender[arrayIndex].mm, &kalender[arrayIndex].yy);
+
+            for (int shift = 0; shift < 3; shift++) {
+                kalender[arrayIndex].kebutuhanDokter[shift] = 0;
+                for (int k = 0; k < 5; k++) {
+                    kalender[arrayIndex].ArrayDokter[k][shift].id = -1;
+                }
+            }
+
+            // Isi data dokter dari linked list
+            for (int shift = 0; shift < 3; shift++) {
+                int* count = NULL;
+                int* id = NULL;
+                if (shift == 0) {
+                    count = &currentJadwal->data.pagiCount;
+                    id = currentJadwal->data.pagi;
+                } else if (shift == 1) {
+                    count = &currentJadwal->data.siangCount;
+                    id = currentJadwal->data.siang;
+                } else if (shift == 2) {
+                    count = &currentJadwal->data.malamCount;
+                    id = currentJadwal->data.malam;
+                }
+
+                for (int i = 0; i < *count && i < 5; i++) {
+                    ListNode* dokter = findDokterById(dokterHead, id[i]);
+                    if (dokter != NULL) {
+                        kalender[arrayIndex].ArrayDokter[i][shift] = dokter->data;
+                        kalender[arrayIndex].kebutuhanDokter[shift]++;
+                    }
+                }
+            }
+
+            arrayIndex++;
+        }
+        currentJadwal = currentJadwal->next;
+        currentIndex++;
+    }
+
+    while (jadwalHead != NULL) {
+        JadwalNode* temp = jadwalHead;
+        jadwalHead = jadwalHead->next;
+        free(temp);
+    }
+
+    *size = range;
+    return (kalender);
 }
