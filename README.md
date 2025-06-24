@@ -13,6 +13,8 @@ Kelompok 2
 Assistant scheduler dapat dinyalakan dengan menjalankan AssistantScheduler shortcut, atau dengan menjalankan AssistantScheduler.exe di libs
 
 # Petunjuk Compile
-run command di dalam msys2 mingw64 command prompt. Pastikan Gtk-3.0 sudah terinstall :
+run command di dalam msys2 mingw64 command prompt. Bila terjadi masalah, pastikan GTK 3.0 sudah terinstall:
 
-gcc -o AssistantScheduler src/main.c Function/dokter.c Function/penjadwalan.c -I Function $(pkg-config --cflags --libs gtk+-3.0) -lm
+gcc -o libs/AssistantScheduler src/main.c Function/dokter.c Function/penjadwalan.c -I Function $(pkg-config --cflags --libs gtk+-3.0) -lm
+
+dan aplikasi akan dapat diakses melalui shortcut yang sudah ada di direktori ini.
