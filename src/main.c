@@ -438,7 +438,7 @@ static void on_show_schedule_by_date_button_clicked(GtkButton *button, gpointer 
         g_free(output_message);
         return;
     }
-    gchar *single_day_schedule_text = formatSingleDayScheduleToString(&global_schedule[days_diff]);
+    gchar *single_day_schedule_text = formatSingleDayScheduleToString(&global_schedule[days_diff+31]);
     gtk_text_buffer_set_text(schedule_buffer, single_day_schedule_text, -1);
     g_free(single_day_schedule_text);
 }
