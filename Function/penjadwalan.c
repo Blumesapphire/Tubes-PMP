@@ -1,11 +1,4 @@
 #include "penjadwalan.h"
-#include "dokter.h" 
-#include <time.h>
-#include <glib.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h> 
-#include <ctype.h>
 
 int countJadwalNodes(JadwalNode* head) {
     int count = 0;

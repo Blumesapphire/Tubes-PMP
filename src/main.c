@@ -1,7 +1,6 @@
 #include <gtk/gtk.h>
 #include "dokter.h"
 #include "penjadwalan.h"
-#include "pengelolaan_data_dokter.h"
 #include <windows.h>
 #include <glib/gprintf.h>
 

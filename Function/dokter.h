@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <glib.h>
+#include <ctype.h>
 #include <gtk/gtk.h> 
 
 #define MAX_HARI_INPUT_LEN 100 //Hari
@@ -25,6 +28,9 @@ ListNode *createDokterList();
 char *formatDoktersToString(ListNode *head); 
 ListNode* findDokterById(ListNode* head, int id); 
 extern ListNode *doctor_head;
+int addDokter_gui(ListNode **head, int id, const char *nama, int maxShift, const char *hari_str, const char *shift_str);
+int hapusDokter_gui(ListNode **head, int targetId);
+void saveDoktersToCSV(ListNode *head);
 
 
 #endif 
