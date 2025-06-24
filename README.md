@@ -1,15 +1,18 @@
 # Tubes-PMP
 Tugas Besar Pemecahan Masalah dengan Pemrograman 
+Aplikasi yang telah dibuat dengan tujuan menyelesaikan permasalahan penjadwalan di sebuah rumah sakit dengan menggunakan pemrograman.
+Aplikasi ditulis dalam bahasa C, dengan UI oleh library GTK.
+Aplikasi dibuat oleh :
 Kelompok 2
+13223032-Darren Johan
+13223022-Joenathan Luther Sihotang
+13223013-Kiyo Lee Tiono
+13223002-Muhammad Faiz Naufal
+
+# Petunjuk Run
+Assistant scheduler dapat dinyalakan dengan menjalankan AssistantScheduler shortcut, atau dengan menjalankan AssistantScheduler.exe di libs
 
 # Petunjuk Compile
 run command di dalam msys2 mingw64 command prompt. Pastikan Gtk-3.0 sudah terinstall :
 
-pertama,
-cd "rute ke folder"
-
-kedua,
-gcc -o tubes src/main.c Function/dokter.c Function/pengelolaan_data_dokter.c Function/penjadwalan.c -I Function $(pkg-config --cflags --libs gtk+-3.0) -lm
-
-ketiga.
-./tubes
+gcc -o AssistantScheduler src/main.c Function/dokter.c Function/penjadwalan.c -I Function $(pkg-config --cflags --libs gtk+-3.0) -lm
